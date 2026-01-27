@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>projet_flutter_famille — Directions UX</title>
+  <style>
+    :root {
+      --bg: #f6f7f4;
+      --ink: #1f2a24;
+      --muted: #6d7a73;
+      --card: #ffffff;
+      --line: #e3e7e2;
+      --accent: #7aa38f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #f9faf8 0%, #f2f5f1 100%);
+      color: var(--ink);
+    }
+    header {
+      padding: 28px 20px 6px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+    p { margin: 0; color: var(--muted); }
+    .grid {
+      display: grid;
+      gap: 18px;
+      padding: 18px 18px 40px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .dir {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 8px 24px rgba(25, 40, 30, 0.08);
+    }
+    .dir h2 { margin: 0 0 8px; font-size: 16px; }
+    .frame {
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      background: #fff;
+      height: 520px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .topbar {
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+    }
+    .chip { font-size: 11px; padding: 4px 8px; border-radius: 999px; background: #eef3ef; color: #3e4b43; }
+    .content { padding: 12px; display: grid; gap: 10px; }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      background: #fafcfa;
+    }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .name { font-weight: 600; }
+    .meta { font-size: 12px; color: var(--muted); }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    .footer {
+      padding: 10px 12px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Direction variants */
+    .serene { --accent: #7aa38f; --bg: #f6f7f4; }
+    .serene .frame { background: #fdfefd; }
+
+    .mono { --accent: #3e4b43; --bg: #f5f5f3; }
+    .mono .card { background: #f7f7f5; }
+
+    .soft { --accent: #8aa3b8; --bg: #f3f6f9; }
+    .soft .chip { background: #e9f0f6; }
+
+    .warm { --accent: #c18b6b; --bg: #f7f3ee; }
+    .warm .chip { background: #f4e9e1; }
+
+    .focus { --accent: #5f7ea5; --bg: #f3f6fb; }
+    .focus .content { gap: 14px; }
+
+    .agenda { --accent: #7b8da4; --bg: #f3f5f8; }
+    .agenda .card { background: #f5f7fb; }
+
+    .banner { --accent: #6f9c9a; }
+    .banner .topbar { background: #eef5f3; }
+
+    .timeline { --accent: #7e8f7c; }
+    .timeline .content { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .timeline .card { min-height: 120px; }
+
+    @media (max-width: 720px) {
+      .frame { height: 460px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Directions UX — projet_flutter_famille</h1>
+    <p>6 directions visuelles pour une app minimaliste, calme et centrée sur l’action.</p>
+  </header>
+
+  <section class="grid">
+    <!-- Direction 1 -->
+    <article class="dir serene">
+      <h2>1. Serene Minimal</h2>
+      <div class="frame">
+        <div class="topbar"><strong>Rappels</strong><span class="chip">Calme</span></div>
+        <div class="content">
+          <div class="card">
+            <div class="row"><span class="name">Maman</span><span class="meta">14 jours</span></div>
+            <div class="row"><button class="btn">Écrire</button><button class="btn ghost">Appeler</button></div>
+          </div>
+          <div class="card">
+            <div class="row"><span class="name">Tante Ana</span><span class="meta">2 mois</span></div>
+            <div class="row"><button class="btn">Écrire</button><button class="btn ghost">Appeler</button></div>
+          </div>
+        </div>
+        <div class="footer">Agenda relationnel • 2 actions rapides</div>
+      </div>
+    </article>
+
+    <!-- Direction 2 -->
+    <article class="dir mono">
+      <h2>2. Mono Focus</h2>
+      <div class="frame">
+        <div class="topbar"><strong>À contacter</strong><span class="chip">Simple</span></div>
+        <div class="content">
+          <div class="card">
+            <div class="row"><span class="name">Papa</span><span class="meta">3 semaines</span></div>
+            <button class="btn" style="width:100%">Contacter maintenant</button>
+          </div>
+          <div class="card">
+            <div class="row"><span class="name">Grand‑mère</span><span class="meta">1 mois</span></div>
+            <button class="btn" style="width:100%">Contacter maintenant</button>
+          </div>
+        </div>
+        <div class="footer">Une action centrale • Zéro friction</div>
+      </div>
+    </article>
+
+    <!-- Direction 3 -->
+    <article class="dir soft">
+      <h2>3. Soft Cards</h2>
+      <div class="frame">
+        <div class="topbar"><strong>Moments</strong><span class="chip">Doux</span></div>
+        <div class="content">
+          <div class="card">
+            <div class="meta">Suggestion du soir</div>
+            <div class="name">Écrire à Sœur</div>
+            <div class="row"><button class="btn">Écrire</button><button class="btn ghost">Plus tard</button></div>
+          </div>
+          <div class="card">
+            <div class="meta">Transport</div>
+            <div class="name">Appeler Oncle</div>
+            <div class="row"><button class="btn">Appeler</button><button class="btn ghost">Plus tard</button></div>
+          </div>
+        </div>
+        <div class="footer">Contexte léger • Ton chaleureux</div>
+      </div>
+    </article>
+
+    <!-- Direction 4 -->
+    <article class="dir warm">
+      <h2>4. Warm Routine</h2>
+      <div class="frame">
+        <div class="topbar"><strong>Rythme</strong><span class="chip">Humain</span></div>
+        <div class="content">
+          <div class="card">
+            <div class="meta">Ton rituel</div>
+            <div class="name">2 personnes à contacter</div>
+            <div class="row"><button class="btn">Commencer</button></div>
+          </div>
+          <div class="card">
+            <div class="row"><span class="name">Maman</span><span class="meta">14 jours</span></div>
+            <div class="row"><button class="btn">Écrire</button><button class="btn ghost">Appeler</button></div>
+          </div>
+        </div>
+        <div class="footer">Rituel léger • Fierté tranquille</div>
+      </div>
+    </article>
+
+    <!-- Direction 5 -->
+    <article class="dir focus">
+      <h2>5. Focus Timeline</h2>
+      <div class="frame">
+        <div class="topbar"><strong>Derniers contacts</strong><span class="chip">Clair</span></div>
+        <div class="content">
+          <div class="card">
+            <div class="row"><span class="name">Maman</span><span class="meta">Il y a 14 jours</span></div>
+            <div class="row"><button class="btn">Écrire</button><button class="btn ghost">Appeler</button></div>
+          </div>
+          <div class="card">
+            <div class="row"><span class="name">Papa</span><span class="meta">Il y a 3 semaines</span></div>
+            <div class="row"><button class="btn">Écrire</button><button class="btn ghost">Appeler</button></div>
+          </div>
+        </div>
+        <div class="footer">Timeline simple • Action directe</div>
+      </div>
+    </article>
+
+    <!-- Direction 6 -->
+    <article class="dir agenda">
+      <h2>6. Agenda Lite</h2>
+      <div class="frame">
+        <div class="topbar"><strong>Agenda</strong><span class="chip">Épuré</span></div>
+        <div class="content">
+          <div class="card">
+            <div class="meta">Cette semaine</div>
+            <div class="row"><span class="name">Maman</span><span class="meta">À écrire</span></div>
+            <div class="row"><button class="btn">Écrire</button><button class="btn ghost">Appeler</button></div>
+          </div>
+          <div class="card">
+            <div class="meta">Ce mois‑ci</div>
+            <div class="row"><span class="name">Tante Ana</span><span class="meta">À appeler</span></div>
+            <div class="row"><button class="btn">Appeler</button><button class="btn ghost">Plus tard</button></div>
+          </div>
+        </div>
+        <div class="footer">Agenda relationnel • Vue temps</div>
+      </div>
+    </article>
+  </section>
+</body>
+</html>

@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>projet_flutter_famille — Écrans Hi‑Fi</title>
+  <style>
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --primary: #334155;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #475569;
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  --accent: #e0f2fe;
+  --accent-foreground: #0284c7;
+  --success: #dcfce7;
+  --success-foreground: #166534;
+  --border: #e2e8f0;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --font-family-body: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-body);
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.export-wrapper {
+  width: 375px;
+  min-height: 812px;
+  position: relative;
+  background-color: var(--background);
+}
+
+.app-container {
+  width: 100%;
+  background-color: var(--background);
+  min-height: 812px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Header */
+header {
+  padding: 20px 20px 10px 20px;
+  background: var(--background);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--foreground);
+}
+
+/* Segmented Control */
+.segmented-control-container {
+  padding: 0 20px 16px 20px;
+}
+
+.segmented-control {
+  display: flex;
+  background: var(--secondary);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+}
+
+.segment {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.segment.active {
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+/* Main Content */
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 100px 20px;
+}
+
+/* Suggestion Banner */
+.banner {
+  background: var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid rgba(2, 132, 199, 0.1);
+}
+
+.banner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.banner-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.banner-text h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.banner-text p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.banner-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Section */
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Contact Card */
+.contact-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--secondary);
+}
+
+.card-info {
+  flex: 1;
+}
+
+.contact-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.contact-meta {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: var(--muted-foreground);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #fbbf24;
+}
+
+.status-dot.urgent {
+  background-color: #f87171;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  flex: 1;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.btn-icon {
+  width: 40px;
+  flex: 0 0 40px;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  height: 80px;
+  display: flex;
+  justify-content: space-around;
+  padding-bottom: 20px;
+  z-index: 10;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.nav-item.active {
+  color: var(--primary);
+}
+
+/* Utilities */
+.spacer {
+  height: 24px;
+}
+
+
+header {
+  padding: 24px 20px 8px;
+}
+
+h1 { margin: 0 0 6px; font-size: 22px; }
+
+p { margin: 0; color: var(--muted-foreground); }
+
+.grid {
+  display: grid;
+  gap: 20px;
+  padding: 16px 16px 40px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.screen {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(20, 30, 40, 0.08);
+}
+
+.statusbar { height: 18px; background: var(--secondary); }
+
+.appbar {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.content { padding: 16px; display: grid; gap: 16px; }
+
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+
+.title { font-size: 18px; font-weight: 600; }
+
+.muted { color: var(--muted-foreground); font-size: 13px; }
+
+.btn.secondary { background: transparent; color: var(--foreground); border: 1px solid var(--border); }
+
+.chips { display: grid; gap: 12px; }
+
+.chip { background: var(--secondary); border: 1px solid var(--border); padding: 10px 14px; border-radius: 20px; font-weight: 500; }
+
+.tabs {
+  background: var(--secondary);
+  border-radius: 12px;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.tab.active { background: var(--card); border-radius: 10px; padding: 6px; font-weight: 600; }
+
+.row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+
+.actions { display: flex; gap: 8px; }
+
+.nav {
+  border-top: 1px solid var(--border);
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-around;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  background: var(--secondary);
+}
+
+.badge { font-size: 12px; color: var(--success-foreground); font-weight: 600; background: var(--success); padding: 2px 8px; border-radius: 999px; }
+
+</style>
+</head>
+<body>
+  <header>
+    <h1>Écrans Hi‑Fi — projet_flutter_famille</h1>
+    <p>Palette Bleu Brume + Inter. Agenda minimaliste et apaisant.</p>
+  </header>
+
+  <section class="grid">
+    <!-- Screen 1: Welcome -->
+    <article class="screen">
+      <div class="statusbar"></div>
+      <div class="appbar">Bienvenue</div>
+      <div class="content">
+        <div class="card">
+          <div class="title">Reste en lien sans y penser</div>
+          <div class="muted">Des rappels discrets pour garder le rythme.</div>
+        </div>
+        <button class="btn">Commencer</button>
+        <div class="muted">1 tap pour écrire ou appeler</div>
+      </div>
+      <div class="nav"><span>Agenda</span><span>Historique</span><span>Réglages</span></div>
+    </article>
+
+    <!-- Screen 2: Categories -->
+    <article class="screen">
+      <div class="statusbar"></div>
+      <div class="appbar">Catégories</div>
+      <div class="content">
+        <div class="muted">Choisis tes catégories</div>
+        <div class="chips">
+          <div class="chip">Proches</div>
+          <div class="chip">Éloignés</div>
+          <div class="chip">Partenaire</div>
+          <div class="chip">Amis</div>
+        </div>
+        <button class="btn">Continuer</button>
+      </div>
+      <div class="nav"><span>Agenda</span><span>Historique</span><span>Réglages</span></div>
+    </article>
+
+    <!-- Screen 3: Contacts + Permissions -->
+    <article class="screen">
+      <div class="statusbar"></div>
+      <div class="appbar">Contacts</div>
+      <div class="content">
+        <div class="card"><div class="row"><strong>Maman</strong><span class="muted">14j</span></div></div>
+        <div class="card"><div class="row"><strong>Papa</strong><span class="muted">3 sem.</span></div></div>
+        <div class="card"><div class="row"><strong>Tante Ana</strong><span class="muted">2 mois</span></div></div>
+        <div class="card"><div class="row"><strong>Autoriser Contacts</strong><span class="badge">Requis</span></div></div>
+        <div class="card"><div class="row"><strong>Autoriser Localisation</strong><span class="muted">Optionnel</span></div></div>
+      </div>
+      <div class="nav"><span>Agenda</span><span>Historique</span><span>Réglages</span></div>
+    </article>
+
+    <!-- Screen 4: Agenda -->
+    <article class="screen">
+      <div class="statusbar"></div>
+      <div class="appbar">Agenda</div>
+      <div class="content">
+        <div class="tabs">
+          <div class="tab active">Aujourd’hui</div>
+          <div class="tab">Semaine</div>
+          <div class="tab">Mois</div>
+        </div>
+        <div class="muted">Cette semaine</div>
+        <div class="card">
+          <div class="row"><strong>Maman</strong><span class="muted">14 jours</span></div>
+          <div class="actions">
+            <button class="btn">Écrire</button>
+            <button class="btn secondary">Appeler</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="row"><strong>Tante Ana</strong><span class="muted">2 mois</span></div>
+          <div class="actions">
+            <button class="btn">Écrire</button>
+            <button class="btn secondary">Appeler</button>
+          </div>
+        </div>
+        <div class="card"><div class="row"><strong>Suggestion du soir</strong><span class="muted">Écrire à Papa</span></div></div>
+      </div>
+      <div class="nav"><span>Agenda</span><span>Historique</span><span>Réglages</span></div>
+    </article>
+
+    <!-- Screen 5: Historique -->
+    <article class="screen">
+      <div class="statusbar"></div>
+      <div class="appbar">Historique</div>
+      <div class="content">
+        <div class="muted">Cette semaine</div>
+        <div class="card"><strong>✅ Maman</strong></div>
+        <div class="card"><strong>✅ Papa</strong></div>
+        <div class="card"><strong>✅ Oncle</strong></div>
+        <div class="card"><div class="row"><strong>Dernier contact</strong><span class="muted">2 jours</span></div></div>
+      </div>
+      <div class="nav"><span>Agenda</span><span>Historique</span><span>Réglages</span></div>
+    </article>
+
+    <!-- Screen 6: Settings -->
+    <article class="screen">
+      <div class="statusbar"></div>
+      <div class="appbar">Réglages</div>
+      <div class="content">
+        <div class="card"><strong>Cadence</strong></div>
+        <div class="card"><strong>Plages horaires</strong></div>
+        <div class="card"><strong>Permissions</strong></div>
+        <div class="card"><strong>Catégories</strong></div>
+        <div class="card"><div class="row"><strong>Mode dégradé</strong><span class="muted">Disponible</span></div></div>
+      </div>
+      <div class="nav"><span>Agenda</span><span>Historique</span><span>Réglages</span></div>
+    </article>
+  </section>
+</body>
+</html>

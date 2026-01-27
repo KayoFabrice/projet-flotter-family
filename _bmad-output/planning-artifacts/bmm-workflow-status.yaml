@@ -1,0 +1,40 @@
+# Workflow Status Template
+
+# This tracks progress through BMM methodology Analysis, Planning, and Solutioning phases.
+# Implementation phase is tracked separately in sprint-status.yaml
+
+# STATUS DEFINITIONS:
+# ==================
+# Initial Status (before completion):
+#   - required: Must be completed to progress
+#   - optional: Can be completed but not required
+#   - recommended: Strongly suggested but not required
+#   - conditional: Required only if certain conditions met (e.g., if_has_ui)
+#
+# Completion Status:
+#   - {file-path}: File created/found (e.g., "docs/product-brief.md")
+#   - skipped: Optional/conditional workflow that was skipped
+
+generated: "2026-01-12T03:59:17"
+project: "projet_flutter_famille"
+user_description: "Créer une application iOS et Android qui me rappelle de contacter régulièrement les membres de ma famille. L'app doit proposer, à des moments opportuns, d'envoyer un message ou d'appeler une personne en fonction de la dernière fois où je l'ai contactée."
+field_type: "greenfield"
+selected_track: "method"
+project_type: "{{project_type}}"
+selected_track: "method"
+field_type: "greenfield"
+workflow_path: "_bmad/bmm/workflows/1-analysis/create-product-brief/workflow.md"
+workflow_status:
+  product-brief:
+    file: "_bmad-output/planning-artifacts/product-brief-projet_flutter_famille-2026-01-12.md"
+    completed_at: "2026-01-12T03:59:17"
+  prd:
+    file: "_bmad-output/planning-artifacts/prd.md"
+    completed_at: "2026-01-12T04:19:06+01:00"
+
+  create-ux-design:
+    file: "_bmad-output/planning-artifacts/ux-design-specification.md"
+    completed_at: "2026-01-25T07:13:49+01:00"
+  create-architecture: "/Users/fabricekayo/Desktop/projet_flutter_famille/_bmad-output/planning-artifacts/architecture.md"
+  create-epics-and-stories: "/Users/fabricekayo/Desktop/projet_flutter_famille/_bmad-output/planning-artifacts/epics.md"
+  implementation-readiness: "/Users/fabricekayo/Desktop/projet_flutter_famille/_bmad-output/planning-artifacts/implementation-readiness-report-2026-01-27.md"

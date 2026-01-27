@@ -1,0 +1,40 @@
+{
+  "global": {
+    "color": {
+      "primary": { "value": "#8AA3B8", "type": "color" },
+      "primaryDark": { "value": "#27303A", "type": "color" },
+      "background": { "value": "#FFFFFF", "type": "color" },
+      "surface": { "value": "#F4F7FB", "type": "color" },
+      "surface2": { "value": "#E6EEF6", "type": "color" },
+      "surface3": { "value": "#C9D7E6", "type": "color" },
+      "border": { "value": "#E4E7E2", "type": "color" },
+      "textPrimary": { "value": "#27303A", "type": "color" },
+      "textSecondary": { "value": "#6D7A73", "type": "color" },
+      "success": { "value": "#7AA3B8", "type": "color" },
+      "warning": { "value": "#C18B6B", "type": "color" }
+    },
+    "font": {
+      "family": { "value": "Inter", "type": "fontFamily" }
+    },
+    "typography": {
+      "h1": { "value": { "fontFamily": "{font.family}", "fontWeight": "600", "fontSize": "28", "lineHeight": "34" }, "type": "typography" },
+      "h2": { "value": { "fontFamily": "{font.family}", "fontWeight": "600", "fontSize": "22", "lineHeight": "28" }, "type": "typography" },
+      "h3": { "value": { "fontFamily": "{font.family}", "fontWeight": "500", "fontSize": "18", "lineHeight": "24" }, "type": "typography" },
+      "body": { "value": { "fontFamily": "{font.family}", "fontWeight": "400", "fontSize": "16", "lineHeight": "24" }, "type": "typography" },
+      "caption": { "value": { "fontFamily": "{font.family}", "fontWeight": "400", "fontSize": "12", "lineHeight": "16" }, "type": "typography" },
+      "button": { "value": { "fontFamily": "{font.family}", "fontWeight": "600", "fontSize": "14", "lineHeight": "20" }, "type": "typography" }
+    },
+    "spacing": {
+      "base": { "value": "8", "type": "spacing" },
+      "xs": { "value": "8", "type": "spacing" },
+      "sm": { "value": "12", "type": "spacing" },
+      "md": { "value": "16", "type": "spacing" },
+      "lg": { "value": "24", "type": "spacing" }
+    },
+    "radii": {
+      "card": { "value": "12", "type": "borderRadius" },
+      "button": { "value": "10", "type": "borderRadius" },
+      "chip": { "value": "20", "type": "borderRadius" }
+    }
+  }
+}

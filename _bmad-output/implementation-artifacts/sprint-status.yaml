@@ -1,0 +1,77 @@
+# generated: 2026-01-27T17:32:32
+# project: projet_flutter_famille
+# project_key: projet-flutter-famille
+# tracking_system: file-system
+# story_location: {project-root}/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-01-27T17:32:32
+project: projet_flutter_famille
+project_key: projet-flutter-famille
+tracking_system: file-system
+story_location: {project-root}/_bmad-output/implementation-artifacts
+
+development_status:
+  epic-1: backlog
+  1-1-initialiser-le-projet-depuis-le-starter-flutter-flutterfire: backlog
+  1-2-welcome-et-demarrage-de-l-onboarding: backlog
+  1-3-selection-des-cercles-relationnels: backlog
+  1-4-ajout-des-premiers-proches: backlog
+  1-5-cadence-par-defaut-pour-demarrer: backlog
+  1-6-import-des-contacts-avec-permission-et-fallback: backlog
+  1-7-localisation-ou-disponibilites-chemin-sans-permission: backlog
+  1-8-fin-d-onboarding-et-redirection-vers-l-agenda: backlog
+  epic-1-retrospective: optional
+  epic-2: backlog
+  2-1-voir-ses-proches-par-categories-avec-recherche-simple: backlog
+  2-2-ajouter-un-proche-manuellement-dans-une-categorie: backlog
+  2-3-modifier-ou-retirer-un-proche-existant: backlog
+  2-4-definir-la-cadence-par-categorie: backlog
+  2-5-reprioriser-un-proche-en-changeant-sa-categorie-priorite: backlog
+  2-6-ajuster-les-plages-horaires-et-activer-desactiver-des-categories: backlog
+  epic-2-retrospective: optional
+  epic-3: backlog
+  3-1-evaluer-l-eligibilite-d-un-rappel-lieu-plage-horaire: backlog
+  3-2-bloquer-les-rappels-pendant-les-periodes-de-repos: backlog
+  3-3-appliquer-un-cooldown-apres-rappel-ignore-ou-reporte: backlog
+  3-4-selectionner-le-meilleur-proche-a-suggerer: backlog
+  3-5-utiliser-un-catalogue-de-messages-chaleureux-et-approuves: backlog
+  epic-3-retrospective: optional
+  epic-4: backlog
+  4-1-afficher-une-suggestion-claire-dans-l-agenda: backlog
+  4-2-lancer-ecrire-depuis-une-notification-ou-une-carte: backlog
+  4-3-lancer-appeler-depuis-une-notification-ou-une-carte: backlog
+  4-4-gerer-pas-le-bon-moment-et-plus-tard: backlog
+  4-5-voir-le-detail-d-un-proche-avec-metriques-et-historique: backlog
+  4-6-mettre-a-jour-l-historique-de-facon-fiable-apres-action: backlog
+  4-7-se-comporter-correctement-en-mode-hors-ligne: backlog
+  4-8-respecter-les-exigences-minimales-de-publication-store: backlog
+  epic-4-retrospective: optional
