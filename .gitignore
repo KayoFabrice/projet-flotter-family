@@ -23,3 +23,7 @@ coverage/
 
 # Misc
 *.lock
+
+# BMAD method artifacts (keep out of app repo)
+_bmad/
+_bmad-output/
