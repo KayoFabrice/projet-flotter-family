@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/onboarding_step.dart';
 import '../providers/onboarding_step_provider.dart';
 import 'circles_page.dart';
+import 'first_contacts_page.dart';
 import 'welcome_page.dart';
 
 class OnboardingGate extends ConsumerWidget {
@@ -18,6 +19,8 @@ class OnboardingGate extends ConsumerWidget {
         switch (step) {
           case OnboardingStep.circles:
             return const CirclesPage();
+          case OnboardingStep.firstContacts:
+            return const FirstContactsPage();
           case OnboardingStep.welcome:
             return const WelcomePage();
         }
