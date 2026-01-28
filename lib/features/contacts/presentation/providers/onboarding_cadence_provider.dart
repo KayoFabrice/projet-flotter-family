@@ -25,7 +25,8 @@ class OnboardingCadenceNotifier extends AsyncNotifier<List<ContactCadence>> {
   Future<List<ContactCadence>> build() async {
     final selectedCircles = await ref.watch(selectedCirclesProvider.future);
     final service = ref.read(cadenceServiceProvider);
-    return service.loadCadencesForCircles(selectedCircles);
+    final circles = selectedCircles.isEmpty ? ContactCircle.values : selectedCircles;
+    return service.loadCadencesForCircles(circles);
   }
 
   void updateCadence(ContactCircle circle, int cadenceDays) {

@@ -181,6 +181,14 @@ class CadenceContent extends StatelessWidget {
               child: const Text('Continuer'),
             ),
           ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: onContinuePressed,
+              child: const Text('Plus tard'),
+            ),
+          ),
         ],
       ),
     );

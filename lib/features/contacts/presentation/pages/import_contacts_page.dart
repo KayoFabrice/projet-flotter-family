@@ -32,6 +32,14 @@ class ImportContactsPage extends StatelessWidget {
                         color: Colors.black54,
                       ),
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  "Aucune permission systeme n'est demandee a cette etape.",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.black54,
+                      ),
+                ),
               ],
             ),
           ),

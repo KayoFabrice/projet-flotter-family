@@ -22,6 +22,15 @@ class CadenceService {
   }
 
   Future<void> saveCadences(List<ContactCadence> cadences) {
+    for (final cadence in cadences) {
+      if (cadence.cadenceDays <= 0) {
+        throw ArgumentError.value(
+          cadence.cadenceDays,
+          'cadenceDays',
+          'La cadence doit etre superieure a 0.',
+        );
+      }
+    }
     return _repository.saveCadences(cadences);
   }
 
