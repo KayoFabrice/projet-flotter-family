@@ -175,7 +175,7 @@ void main() {
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Cadence'), findsOneWidget);
+    expect(find.text('Quel est le bon rythme ?'), findsOneWidget);
     expect(onboardingRepository.fetchCurrentStep(), completion(OnboardingStep.cadence));
   });
 }

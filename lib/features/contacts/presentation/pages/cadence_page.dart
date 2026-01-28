@@ -111,135 +111,138 @@ class CadenceContent extends StatelessWidget {
   final void Function(ContactCircle circle, int cadenceDays) onCadenceSelected;
   final VoidCallback onContinuePressed;
 
-  static const pageBackground = Color(0xFFF6F7F3);
-  static const _activeStepColor = Color(0xFF4C6FFF);
-  static const _inactiveStepColor = Color(0xFFE2E8F0);
-  static const _cardBorderColor = Color(0xFFE2E8F0);
+  static const pageBackground = Color(0xFFFBFCFD);
+  static const _activeStepColor = Color(0xFF4C6EF5);
+  static const _inactiveStepColor = Color(0xFFF1F5F9);
+  static const _footerBorder = Color(0x14000000);
+  static const _muted = Color(0xFF8B95A1);
 
   @override
   Widget build(BuildContext context) {
     const options = [7, 14, 30];
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _StepIndicator(),
-          const SizedBox(height: 28),
-          Text(
-            'Cadence',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Colors.black54,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _StepIndicator(),
+              const SizedBox(height: 32),
+              Text(
+                'Quel est le bon rythme ?',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Choisissez une frequence ideale pour ces premiers contacts. Vous pourrez l\'ajuster pour chacun plus tard.',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: _muted,
+                    ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Definissez un rythme simple',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Choisissez une cadence par cercle. Vous pourrez ajuster plus tard.',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.black54,
-                ),
-          ),
-          const SizedBox(height: 24),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  for (var index = 0; index < cadences.length; index++) ...[
-                    _CadenceCard(
-                      cadence: cadences[index],
-                      options: options,
-                      onSelected: (value) {
-                        onCadenceSelected(cadences[index].circle, value);
+        ),
+        const SizedBox(height: 24),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                for (var index = 0; index < cadences.length; index++) ...[
+                  Text(
+                    cadences[index].circle.label,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: _muted,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  for (final option in options) ...[
+                    CadenceOptionChip(
+                      key: ValueKey('cadence-${cadences[index].circle.storageValue}-$option'),
+                      title: _optionTitle(option),
+                      subtitle: _optionSubtitle(option),
+                      icon: _optionIcon(option),
+                      selected: cadences[index].cadenceDays == option,
+                      onSelected: () {
+                        onCadenceSelected(cadences[index].circle, option);
                       },
                     ),
-                    if (index != cadences.length - 1) const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                   ],
+                  if (index != cadences.length - 1) const SizedBox(height: 8),
                 ],
-              ),
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          SizedBox(
+        ),
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: pageBackground,
+            border: Border(top: BorderSide(color: _footerBorder)),
+          ),
+          child: SizedBox(
             width: double.infinity,
             child: FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: _activeStepColor,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
               onPressed: onContinuePressed,
               child: const Text('Continuer'),
             ),
           ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              onPressed: onContinuePressed,
-              child: const Text('Plus tard'),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
-}
 
-class _CadenceCard extends StatelessWidget {
-  const _CadenceCard({
-    required this.cadence,
-    required this.options,
-    required this.onSelected,
-  });
+  String _optionTitle(int days) {
+    switch (days) {
+      case 7:
+        return 'Chaque semaine';
+      case 14:
+        return 'Tous les 15 jours';
+      case 30:
+        return 'Chaque mois';
+      default:
+        return 'Tous les $days jours';
+    }
+  }
 
-  final ContactCadence cadence;
-  final List<int> options;
-  final ValueChanged<int> onSelected;
+  String _optionSubtitle(int days) {
+    switch (days) {
+      case 7:
+        return 'Pour la famille tres proche';
+      case 14:
+        return 'Pour garder un lien regulier';
+      case 30:
+        return 'Juste pour prendre des nouvelles';
+      default:
+        return 'Cadence personnalisee';
+    }
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: CadenceContent._cardBorderColor),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            cadence.circle.label,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 10,
-            runSpacing: 8,
-            children: options.map((option) {
-              return CadenceOptionChip(
-                key: ValueKey('cadence-${cadence.circle.storageValue}-$option'),
-                label: '${option} j',
-                selected: cadence.cadenceDays == option,
-                onSelected: () => onSelected(option),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
+  IconData _optionIcon(int days) {
+    switch (days) {
+      case 7:
+        return Icons.calendar_today_outlined;
+      case 14:
+        return Icons.calendar_month_outlined;
+      case 30:
+        return Icons.schedule;
+      default:
+        return Icons.calendar_month_outlined;
+    }
   }
 }
 
@@ -250,13 +253,13 @@ class _StepIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: const [
-        _StepBar(active: false),
-        SizedBox(width: 8),
-        _StepBar(active: false),
-        SizedBox(width: 8),
-        _StepBar(active: false),
+        _StepBar(active: true),
         SizedBox(width: 8),
         _StepBar(active: true),
+        SizedBox(width: 8),
+        _StepBar(active: true),
+        SizedBox(width: 8),
+        _StepBar(active: false),
       ],
     );
   }

@@ -5,6 +5,7 @@ import 'package:projet_flutter_famille/features/contacts/domain/contact_cadence.
 import 'package:projet_flutter_famille/features/contacts/domain/contact_circle.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/pages/cadence_page.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_cadence_provider.dart';
+import 'package:projet_flutter_famille/features/contacts/presentation/widgets/cadence_option_chip.dart';
 
 class FailingCadenceNotifier extends OnboardingCadenceNotifier {
   @override
@@ -41,36 +42,27 @@ void main() {
       ),
     );
 
+    expect(find.text('Quel est le bon rythme ?'), findsOneWidget);
     expect(find.text('Parents'), findsOneWidget);
     expect(find.text('Freres & Soeurs'), findsOneWidget);
     expect(find.text('Grand-parents'), findsOneWidget);
     expect(find.text('Amis proches'), findsOneWidget);
+    expect(find.text('Chaque semaine'), findsWidgets);
+    expect(find.text('Tous les 15 jours'), findsWidgets);
+    expect(find.text('Chaque mois'), findsWidgets);
     expect(find.text('Continuer'), findsOneWidget);
-    expect(find.text('Plus tard'), findsOneWidget);
 
-    final prochesChip = tester.widget<ChoiceChip>(
-      find.descendant(
-        of: find.byKey(const ValueKey('cadence-proches-7')),
-        matching: find.byType(ChoiceChip),
-      ),
+    final prochesChip = tester.widget<CadenceOptionChip>(
+      find.byKey(const ValueKey('cadence-proches-7')),
     );
-    final eloignesChip = tester.widget<ChoiceChip>(
-      find.descendant(
-        of: find.byKey(const ValueKey('cadence-eloignes-30')),
-        matching: find.byType(ChoiceChip),
-      ),
+    final eloignesChip = tester.widget<CadenceOptionChip>(
+      find.byKey(const ValueKey('cadence-eloignes-30')),
     );
-    final partenaireChip = tester.widget<ChoiceChip>(
-      find.descendant(
-        of: find.byKey(const ValueKey('cadence-partenaire-14')),
-        matching: find.byType(ChoiceChip),
-      ),
+    final partenaireChip = tester.widget<CadenceOptionChip>(
+      find.byKey(const ValueKey('cadence-partenaire-14')),
     );
-    final amisChip = tester.widget<ChoiceChip>(
-      find.descendant(
-        of: find.byKey(const ValueKey('cadence-amis-14')),
-        matching: find.byType(ChoiceChip),
-      ),
+    final amisChip = tester.widget<CadenceOptionChip>(
+      find.byKey(const ValueKey('cadence-amis-14')),
     );
 
     expect(prochesChip.selected, isTrue);
