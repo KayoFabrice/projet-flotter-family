@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:projet_flutter_famille/features/contacts/data/circles_repository.dart';
+import 'package:projet_flutter_famille/features/contacts/data/contacts_repository.dart';
 import 'package:projet_flutter_famille/features/contacts/data/onboarding_repository.dart';
+import 'package:projet_flutter_famille/features/contacts/domain/contact.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_circle.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/onboarding_step.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/pages/circles_page.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/pages/first_contacts_page.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_step_provider.dart';
+import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_contacts_provider.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/selected_circles_provider.dart';
 
 class FakeCirclesRepository implements CirclesRepository {
@@ -37,6 +40,21 @@ class FakeOnboardingRepository implements OnboardingRepository {
   Future<void> setCurrentStep(OnboardingStep step) async {
     _step = step;
   }
+}
+
+class FakeContactsRepository implements ContactsRepository {
+  final List<Contact> _stored = [];
+
+  @override
+  Future<List<Contact>> fetchOnboardingContacts() async => List.unmodifiable(_stored);
+
+  @override
+  Future<void> createOnboardingContact(Contact contact) async {
+    _stored.add(contact);
+  }
+
+  @override
+  Future<int> countOnboardingContacts() async => _stored.length;
 }
 
 void main() {
@@ -88,6 +106,7 @@ void main() {
 
   testWidgets('CirclesPage persists selection and navigates to first contacts', (tester) async {
     final fakeRepository = FakeCirclesRepository();
+    final fakeContactsRepository = FakeContactsRepository();
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -95,6 +114,7 @@ void main() {
           onboardingRepositoryProvider.overrideWithValue(
             FakeOnboardingRepository(OnboardingStep.circles),
           ),
+          contactsRepositoryProvider.overrideWithValue(fakeContactsRepository),
         ],
         child: MaterialApp(
           routes: {

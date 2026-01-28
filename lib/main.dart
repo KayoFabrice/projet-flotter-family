@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'core/navigation/app_shell.dart';
 import 'features/contacts/presentation/pages/circles_page.dart';
+import 'features/contacts/presentation/pages/cadence_page.dart';
 import 'features/contacts/presentation/pages/first_contacts_page.dart';
 import 'features/contacts/presentation/pages/onboarding_gate.dart';
 import 'features/contacts/presentation/pages/welcome_page.dart';
@@ -23,11 +24,7 @@ class MyApp extends StatelessWidget {
     const input = Color(0xFFF2F4F8);
     const primary = Color(0xFF4C6FFF);
     const secondary = Color(0xFFF3F4F6);
-    const muted = Color(0xFFE5E7EB);
-    const success = Color(0xFF22C55E);
-    const accent = Color(0xFFF5D7A7);
     const destructive = Color(0xFFEF4444);
-    const warning = Color(0xFFF59E0B);
     const card = Colors.white;
 
     final baseTextTheme = ThemeData.light().textTheme;
@@ -41,8 +38,6 @@ class MyApp extends StatelessWidget {
           onSecondary: foreground,
           surface: card,
           onSurface: foreground,
-          background: background,
-          onBackground: foreground,
           error: destructive,
           onError: Colors.white,
         ),
@@ -86,6 +81,7 @@ class MyApp extends StatelessWidget {
         WelcomePage.routeName: (_) => const WelcomePage(),
         CirclesPage.routeName: (_) => const CirclesPage(),
         FirstContactsPage.routeName: (_) => const FirstContactsPage(),
+        CadencePage.routeName: (_) => const CadencePage(),
         AppShell.routeName: (_) => const AppShell(),
       },
     );
