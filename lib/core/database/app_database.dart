@@ -10,6 +10,7 @@ class AppDatabase {
   static const onboardingTable = 'onboarding_states';
   static const selectedCirclesTable = 'selected_circles';
   static const contactsTable = 'contacts';
+  static const contactCadencesTable = 'contact_cadences';
 
   Database? _database;
 
@@ -22,7 +23,7 @@ class AppDatabase {
     final dbPath = join(await getDatabasesPath(), _databaseName);
     final db = await openDatabase(
       dbPath,
-      version: 4,
+      version: 5,
       onCreate: (database, version) async {
         await database.execute(
           'CREATE TABLE $onboardingTable (id INTEGER PRIMARY KEY, step TEXT NOT NULL)',
@@ -32,6 +33,9 @@ class AppDatabase {
         );
         await database.execute(
           'CREATE TABLE $contactsTable (id INTEGER PRIMARY KEY, display_name TEXT NOT NULL, circle TEXT NOT NULL, created_at TEXT NOT NULL, is_onboarding INTEGER NOT NULL DEFAULT 1)',
+        );
+        await database.execute(
+          'CREATE TABLE $contactCadencesTable (circle TEXT PRIMARY KEY, cadence_days INTEGER NOT NULL)',
         );
       },
       onUpgrade: (database, oldVersion, newVersion) async {
@@ -47,6 +51,11 @@ class AppDatabase {
         } else if (oldVersion < 4) {
           await database.execute(
             'ALTER TABLE $contactsTable ADD COLUMN is_onboarding INTEGER NOT NULL DEFAULT 1',
+          );
+        }
+        if (oldVersion < 5) {
+          await database.execute(
+            'CREATE TABLE $contactCadencesTable (circle TEXT PRIMARY KEY, cadence_days INTEGER NOT NULL)',
           );
         }
       },

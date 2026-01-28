@@ -6,6 +6,7 @@ import 'core/navigation/app_shell.dart';
 import 'features/contacts/presentation/pages/circles_page.dart';
 import 'features/contacts/presentation/pages/cadence_page.dart';
 import 'features/contacts/presentation/pages/first_contacts_page.dart';
+import 'features/contacts/presentation/pages/import_contacts_page.dart';
 import 'features/contacts/presentation/pages/onboarding_gate.dart';
 import 'features/contacts/presentation/pages/welcome_page.dart';
 
@@ -82,6 +83,7 @@ class MyApp extends StatelessWidget {
         CirclesPage.routeName: (_) => const CirclesPage(),
         FirstContactsPage.routeName: (_) => const FirstContactsPage(),
         CadencePage.routeName: (_) => const CadencePage(),
+        ImportContactsPage.routeName: (_) => const ImportContactsPage(),
         AppShell.routeName: (_) => const AppShell(),
       },
     );

@@ -5,10 +5,12 @@ import 'package:projet_flutter_famille/features/contacts/data/circles_repository
 import 'package:projet_flutter_famille/features/contacts/data/contacts_repository.dart';
 import 'package:projet_flutter_famille/features/contacts/data/onboarding_repository.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact.dart';
+import 'package:projet_flutter_famille/features/contacts/domain/contact_cadence.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_circle.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/onboarding_step.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/pages/cadence_page.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/pages/first_contacts_page.dart';
+import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_cadence_provider.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_contacts_provider.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_step_provider.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/selected_circles_provider.dart';
@@ -57,6 +59,15 @@ class FakeOnboardingRepository implements OnboardingRepository {
   @override
   Future<void> setCurrentStep(OnboardingStep step) async {
     _step = step;
+  }
+}
+
+class FakeOnboardingCadenceNotifier extends OnboardingCadenceNotifier {
+  @override
+  Future<List<ContactCadence>> build() async {
+    return const [
+      ContactCadence(circle: ContactCircle.proches, cadenceDays: 7),
+    ];
   }
 }
 
@@ -148,6 +159,7 @@ void main() {
           circlesRepositoryProvider.overrideWithValue(circlesRepository),
           contactsRepositoryProvider.overrideWithValue(contactsRepository),
           onboardingRepositoryProvider.overrideWithValue(onboardingRepository),
+          onboardingCadenceProvider.overrideWith(FakeOnboardingCadenceNotifier.new),
         ],
         child: MaterialApp(
           routes: {
