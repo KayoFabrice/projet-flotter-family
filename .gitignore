@@ -3,14 +3,17 @@
 .packages
 .pub/
 build/
+.flutter-plugins-dependencies
 
 # Generated plugin registrant
 **/generated_plugin_registrant.dart
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
 
 # IDE
 .idea/
 .vscode/
 *.iml
+ios/Runner.xcworkspace/xcuserdata/
 
 # OS
 .DS_Store
