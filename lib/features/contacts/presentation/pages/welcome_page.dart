@@ -110,7 +110,7 @@ class _WelcomeIllustration extends StatelessWidget {
         fit: BoxFit.contain,
         color: _imageBackground,
         colorBlendMode: BlendMode.modulate,
-        errorBuilder: (_, __, ___) => const _DefaultIllustration(),
+        errorBuilder: (context, error, stackTrace) => const _DefaultIllustration(),
       ),
     );
   }
