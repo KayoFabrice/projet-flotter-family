@@ -3,6 +3,7 @@ enum OnboardingStep {
   circles,
   firstContacts,
   cadence,
+  importContacts,
 }
 
 extension OnboardingStepMapping on OnboardingStep {
@@ -12,6 +13,8 @@ extension OnboardingStepMapping on OnboardingStep {
         return OnboardingStep.firstContacts;
       case 'cadence':
         return OnboardingStep.cadence;
+      case 'import_contacts':
+        return OnboardingStep.importContacts;
       case 'circles':
         return OnboardingStep.circles;
       case 'welcome':
@@ -30,6 +33,8 @@ extension OnboardingStepMapping on OnboardingStep {
         return 'first_contacts';
       case OnboardingStep.cadence:
         return 'cadence';
+      case OnboardingStep.importContacts:
+        return 'import_contacts';
     }
   }
 }

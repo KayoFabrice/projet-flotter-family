@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/onboarding_step.dart';
 import 'cadence_page.dart';
+import 'import_contacts_page.dart';
 import '../providers/onboarding_step_provider.dart';
 import 'circles_page.dart';
 import 'first_contacts_page.dart';
@@ -20,6 +21,8 @@ class OnboardingGate extends ConsumerWidget {
         switch (step) {
           case OnboardingStep.cadence:
             return const CadencePage();
+          case OnboardingStep.importContacts:
+            return const ImportContactsPage();
           case OnboardingStep.circles:
             return const CirclesPage();
           case OnboardingStep.firstContacts:
