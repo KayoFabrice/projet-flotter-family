@@ -54,6 +54,11 @@ class FakeContactsRepository implements ContactsRepository {
   }
 
   @override
+  Future<void> createImportedContacts(List<Contact> contacts) async {
+    _stored.addAll(contacts);
+  }
+
+  @override
   Future<int> countOnboardingContacts() async => _stored.length;
 }
 

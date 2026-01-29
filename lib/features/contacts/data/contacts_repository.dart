@@ -7,6 +7,7 @@ import '../domain/contact_circle.dart';
 abstract class ContactsRepository {
   Future<List<Contact>> fetchOnboardingContacts();
   Future<void> createOnboardingContact(Contact contact);
+  Future<void> createImportedContacts(List<Contact> contacts);
   Future<int> countOnboardingContacts();
 }
 
@@ -27,12 +28,14 @@ class ContactsRepositoryImpl implements ContactsRepository {
     return rows
         .map(
           (row) => Contact(
-            id: (row['id'] as int?) ?? 0,
+            id: (row['id'] as String?) ?? '',
             displayName: (row['display_name'] as String?) ?? '',
             circle: ContactCircleMapping.fromStorage(
               (row['circle'] as String?) ?? 'proches',
             ),
             createdAt: (row['created_at'] as String?) ?? '',
+            phone: row['phone'] as String?,
+            email: row['email'] as String?,
           ),
         )
         .toList();
@@ -49,8 +52,36 @@ class ContactsRepositoryImpl implements ContactsRepository {
         'circle': contact.circle.storageValue,
         'created_at': contact.createdAt,
         'is_onboarding': 1,
+        'phone': contact.phone,
+        'email': contact.email,
       },
     );
+  }
+
+  @override
+  Future<void> createImportedContacts(List<Contact> contacts) async {
+    if (contacts.isEmpty) {
+      return;
+    }
+    final db = await _database.database;
+    await db.transaction((transaction) async {
+      final batch = transaction.batch();
+      for (final contact in contacts) {
+        batch.insert(
+          AppDatabase.contactsTable,
+          {
+            'id': contact.id,
+            'display_name': contact.displayName,
+            'circle': contact.circle.storageValue,
+            'created_at': contact.createdAt,
+            'is_onboarding': 0,
+            'phone': contact.phone,
+            'email': contact.email,
+          },
+        );
+      }
+      await batch.commit(noResult: true);
+    });
   }
 
   @override

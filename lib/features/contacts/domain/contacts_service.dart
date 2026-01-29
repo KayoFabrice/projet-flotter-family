@@ -1,3 +1,5 @@
+import 'package:uuid/uuid.dart';
+
 import '../data/contacts_repository.dart';
 import 'contact.dart';
 import 'contact_circle.dart';
@@ -22,7 +24,7 @@ class ContactsService {
     }
     final now = DateTime.now();
     final contact = Contact(
-      id: now.millisecondsSinceEpoch,
+      id: const Uuid().v4(),
       displayName: displayName,
       circle: circle,
       createdAt: now.toUtc().toIso8601String(),
