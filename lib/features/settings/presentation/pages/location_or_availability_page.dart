@@ -9,7 +9,7 @@ import '../widgets/availability_time_range_editor.dart';
 import '../../../../core/permissions/location_permission_service.dart';
 import '../../../contacts/presentation/providers/onboarding_step_provider.dart';
 import '../../../contacts/domain/onboarding_step.dart';
-import '../../../contacts/presentation/pages/ready_page.dart';
+import '../../../contacts/presentation/pages/onboarding_ready_page.dart';
 import '../../domain/key_location.dart';
 
 class LocationOrAvailabilityPage extends ConsumerWidget {
@@ -43,7 +43,8 @@ class LocationOrAvailabilityPage extends ConsumerWidget {
         );
         return;
       }
-      await Navigator.of(context).pushReplacementNamed(ReadyPage.routeName);
+      await Navigator.of(context)
+          .pushReplacementNamed(OnboardingReadyPage.routeName);
     }
 
     Future<void> handleLocationPermission() async {

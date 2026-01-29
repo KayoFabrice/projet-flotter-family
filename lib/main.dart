@@ -3,16 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'core/navigation/app_shell.dart';
+import 'core/metrics/startup_timer.dart';
 import 'features/contacts/presentation/pages/circles_page.dart';
 import 'features/contacts/presentation/pages/cadence_page.dart';
 import 'features/contacts/presentation/pages/first_contacts_page.dart';
 import 'features/contacts/presentation/pages/import_contacts_page.dart';
 import 'features/contacts/presentation/pages/onboarding_gate.dart';
-import 'features/contacts/presentation/pages/ready_page.dart';
+import 'features/contacts/presentation/pages/onboarding_ready_page.dart';
 import 'features/contacts/presentation/pages/welcome_page.dart';
 import 'features/settings/presentation/pages/location_or_availability_page.dart';
 
 void main() {
+  AppStartupTimer.start();
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -88,7 +90,7 @@ class MyApp extends StatelessWidget {
         ImportContactsPage.routeName: (_) => const ImportContactsPage(),
         LocationOrAvailabilityPage.routeName: (_) =>
             const LocationOrAvailabilityPage(),
-        ReadyPage.routeName: (_) => const ReadyPage(),
+        OnboardingReadyPage.routeName: (_) => const OnboardingReadyPage(),
         AppShell.routeName: (_) => const AppShell(),
       },
     );

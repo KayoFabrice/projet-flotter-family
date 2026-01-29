@@ -5,7 +5,7 @@ import 'package:projet_flutter_famille/core/permissions/location_permission_serv
 import 'package:projet_flutter_famille/features/contacts/data/onboarding_repository.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/onboarding_service.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/onboarding_step.dart';
-import 'package:projet_flutter_famille/features/contacts/presentation/pages/ready_page.dart';
+import 'package:projet_flutter_famille/features/contacts/presentation/pages/onboarding_ready_page.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_step_provider.dart';
 import 'package:projet_flutter_famille/features/settings/data/key_location_repository.dart';
 import 'package:projet_flutter_famille/features/settings/data/settings_flags_repository.dart';
@@ -85,7 +85,7 @@ void main() {
         ],
         child: MaterialApp(
           routes: {
-            ReadyPage.routeName: (_) => const ReadyPage(),
+            OnboardingReadyPage.routeName: (_) => const OnboardingReadyPage(),
           },
           home: const LocationOrAvailabilityPage(),
         ),
@@ -95,6 +95,6 @@ void main() {
     await tester.tap(find.text('Activer la localisation'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Tout est pret'), findsOneWidget);
+    expect(find.text('Tout est pret !'), findsOneWidget);
   });
 }

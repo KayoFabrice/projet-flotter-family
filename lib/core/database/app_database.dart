@@ -13,6 +13,7 @@ class AppDatabase {
   static const contactCadencesTable = 'contact_cadences';
   static const settingsFlagsTable = 'settings_flags';
   static const availabilityWindowsTable = 'availability_windows';
+  static const performanceMetricsTable = 'performance_metrics';
 
   Database? _database;
 
@@ -25,7 +26,7 @@ class AppDatabase {
     final dbPath = join(await getDatabasesPath(), _databaseName);
     final db = await openDatabase(
       dbPath,
-      version: 9,
+      version: 10,
       onCreate: (database, version) async {
         await database.execute(
           'CREATE TABLE $onboardingTable (id INTEGER PRIMARY KEY, step TEXT NOT NULL)',
@@ -44,6 +45,9 @@ class AppDatabase {
         );
         await database.execute(
           'CREATE TABLE $availabilityWindowsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, start_minute INTEGER NOT NULL, end_minute INTEGER NOT NULL)',
+        );
+        await database.execute(
+          'CREATE TABLE $performanceMetricsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, metric_key TEXT NOT NULL, duration_ms INTEGER NOT NULL, recorded_at TEXT NOT NULL)',
         );
       },
       onUpgrade: (database, oldVersion, newVersion) async {
@@ -95,6 +99,11 @@ class AppDatabase {
         if (oldVersion < 9) {
           await database.execute(
             'CREATE TABLE $availabilityWindowsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, start_minute INTEGER NOT NULL, end_minute INTEGER NOT NULL)',
+          );
+        }
+        if (oldVersion < 10) {
+          await database.execute(
+            'CREATE TABLE $performanceMetricsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, metric_key TEXT NOT NULL, duration_ms INTEGER NOT NULL, recorded_at TEXT NOT NULL)',
           );
         }
       },
