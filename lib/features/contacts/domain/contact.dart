@@ -6,10 +6,14 @@ class Contact {
     required this.displayName,
     required this.circle,
     required this.createdAt,
+    this.phone,
+    this.email,
   });
 
-  final int id;
+  final String id;
   final String displayName;
   final ContactCircle circle;
   final String createdAt;
+  final String? phone;
+  final String? email;
 }
