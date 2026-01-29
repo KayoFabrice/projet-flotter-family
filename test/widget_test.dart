@@ -9,9 +9,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:projet_flutter_famille/main.dart';
+import 'package:projet_flutter_famille/features/contacts/data/onboarding_completion_repository.dart';
 import 'package:projet_flutter_famille/features/contacts/data/onboarding_repository.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/onboarding_step.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_step_provider.dart';
+import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_completion_provider.dart';
 
 class _FakeOnboardingRepository implements OnboardingRepository {
   _FakeOnboardingRepository(this._step);
@@ -27,13 +29,31 @@ class _FakeOnboardingRepository implements OnboardingRepository {
   }
 }
 
+class _FakeOnboardingCompletionRepository
+    implements OnboardingCompletionRepository {
+  _FakeOnboardingCompletionRepository(this._isComplete);
+
+  bool _isComplete;
+
+  @override
+  Future<bool> fetchIsComplete() async => _isComplete;
+
+  @override
+  Future<void> setComplete(bool value) async {
+    _isComplete = value;
+  }
+}
+
 void main() {
   testWidgets('App shows the welcome CTA on launch', (tester) async {
     final fakeRepository = _FakeOnboardingRepository(OnboardingStep.welcome);
+    final completionRepository = _FakeOnboardingCompletionRepository(false);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           onboardingRepositoryProvider.overrideWithValue(fakeRepository),
+          onboardingCompletionRepositoryProvider
+              .overrideWithValue(completionRepository),
         ],
         child: const MyApp(),
       ),
