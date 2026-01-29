@@ -8,7 +8,7 @@ import 'package:projet_flutter_famille/features/contacts/presentation/pages/impo
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/contacts_permission_provider.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_step_provider.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/onboarding_step.dart';
-import 'package:projet_flutter_famille/features/contacts/presentation/pages/location_page.dart';
+import 'package:projet_flutter_famille/features/settings/presentation/pages/location_or_availability_page.dart';
 
 class FakeContactsPermissionService extends ContactsPermissionService {
   FakeContactsPermissionService(this.status);
@@ -49,7 +49,8 @@ void main() {
         ],
         child: MaterialApp(
           routes: {
-            LocationPage.routeName: (_) => LocationPage(),
+            LocationOrAvailabilityPage.routeName: (_) =>
+                const LocationOrAvailabilityPage(),
           },
           home: const ImportContactsPage(),
         ),
@@ -81,7 +82,8 @@ void main() {
         ],
         child: MaterialApp(
           routes: {
-            LocationPage.routeName: (_) => LocationPage(),
+            LocationOrAvailabilityPage.routeName: (_) =>
+                const LocationOrAvailabilityPage(),
           },
           home: const ImportContactsPage(),
         ),

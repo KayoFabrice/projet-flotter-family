@@ -7,7 +7,7 @@ import '../providers/contacts_permission_provider.dart';
 import '../widgets/contacts_import_list.dart';
 import '../../domain/onboarding_step.dart';
 import '../providers/onboarding_step_provider.dart';
-import 'location_page.dart';
+import '../../../settings/presentation/pages/location_or_availability_page.dart';
 
 class ImportContactsPage extends ConsumerWidget {
   const ImportContactsPage({super.key});
@@ -148,7 +148,8 @@ Future<void> _goToNextStep(WidgetRef ref, BuildContext context) async {
     );
     return;
   }
-  await Navigator.of(context).pushReplacementNamed(LocationPage.routeName);
+  await Navigator.of(context)
+      .pushReplacementNamed(LocationOrAvailabilityPage.routeName);
 }
 
 class ImportContactsContent extends StatelessWidget {

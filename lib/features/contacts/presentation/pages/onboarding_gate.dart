@@ -7,7 +7,8 @@ import 'import_contacts_page.dart';
 import '../providers/onboarding_step_provider.dart';
 import 'circles_page.dart';
 import 'first_contacts_page.dart';
-import 'location_page.dart';
+import '../../../settings/presentation/pages/location_or_availability_page.dart';
+import 'ready_page.dart';
 import 'welcome_page.dart';
 
 class OnboardingGate extends ConsumerWidget {
@@ -25,7 +26,9 @@ class OnboardingGate extends ConsumerWidget {
           case OnboardingStep.importContacts:
             return const ImportContactsPage();
           case OnboardingStep.locationOrAvailability:
-            return const LocationPage();
+            return const LocationOrAvailabilityPage();
+          case OnboardingStep.ready:
+            return const ReadyPage();
           case OnboardingStep.circles:
             return const CirclesPage();
           case OnboardingStep.firstContacts:

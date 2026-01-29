@@ -11,6 +11,8 @@ class AppDatabase {
   static const selectedCirclesTable = 'selected_circles';
   static const contactsTable = 'contacts';
   static const contactCadencesTable = 'contact_cadences';
+  static const settingsFlagsTable = 'settings_flags';
+  static const availabilityWindowsTable = 'availability_windows';
 
   Database? _database;
 
@@ -23,7 +25,7 @@ class AppDatabase {
     final dbPath = join(await getDatabasesPath(), _databaseName);
     final db = await openDatabase(
       dbPath,
-      version: 7,
+      version: 9,
       onCreate: (database, version) async {
         await database.execute(
           'CREATE TABLE $onboardingTable (id INTEGER PRIMARY KEY, step TEXT NOT NULL)',
@@ -36,6 +38,12 @@ class AppDatabase {
         );
         await database.execute(
           'CREATE TABLE $contactCadencesTable (circle TEXT PRIMARY KEY, cadence_days INTEGER NOT NULL)',
+        );
+        await database.execute(
+          'CREATE TABLE $settingsFlagsTable (setting_key TEXT PRIMARY KEY, setting_value TEXT NOT NULL)',
+        );
+        await database.execute(
+          'CREATE TABLE $availabilityWindowsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, start_minute INTEGER NOT NULL, end_minute INTEGER NOT NULL)',
         );
       },
       onUpgrade: (database, oldVersion, newVersion) async {
@@ -77,6 +85,16 @@ class AppDatabase {
         if (oldVersion < 5) {
           await database.execute(
             'CREATE TABLE $contactCadencesTable (circle TEXT PRIMARY KEY, cadence_days INTEGER NOT NULL)',
+          );
+        }
+        if (oldVersion < 8) {
+          await database.execute(
+            'CREATE TABLE $settingsFlagsTable (setting_key TEXT PRIMARY KEY, setting_value TEXT NOT NULL)',
+          );
+        }
+        if (oldVersion < 9) {
+          await database.execute(
+            'CREATE TABLE $availabilityWindowsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, start_minute INTEGER NOT NULL, end_minute INTEGER NOT NULL)',
           );
         }
       },

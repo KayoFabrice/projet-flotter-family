@@ -7,7 +7,7 @@ import 'package:projet_flutter_famille/features/contacts/presentation/providers/
 import 'package:projet_flutter_famille/features/contacts/domain/onboarding_step.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/onboarding_service.dart';
 import 'package:projet_flutter_famille/features/contacts/data/onboarding_repository.dart';
-import 'package:projet_flutter_famille/features/contacts/presentation/pages/location_page.dart';
+import 'package:projet_flutter_famille/features/settings/presentation/pages/location_or_availability_page.dart';
 
 void main() {
   testWidgets('ImportContactsContent shows explainer and CTAs', (tester) async {
@@ -46,7 +46,8 @@ void main() {
         ],
         child: MaterialApp(
           routes: {
-            LocationPage.routeName: (_) => const LocationPage(),
+            LocationOrAvailabilityPage.routeName: (_) =>
+                const LocationOrAvailabilityPage(),
           },
           home: const ImportContactsPage(),
         ),
@@ -64,7 +65,7 @@ void main() {
       findsOneWidget,
     );
     await tester.pumpAndSettle();
-    expect(find.text('Localisation'), findsOneWidget);
+    expect(find.text('Le bon moment, au bon endroit'), findsOneWidget);
   });
 }
 
