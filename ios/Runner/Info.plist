@@ -26,6 +26,8 @@
 	<true/>
 	<key>NSContactsUsageDescription</key>
 	<string>Importer vos contacts pour remplir votre agenda relationnel.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Nous utilisons votre localisation pour proposer des rappels au bon moment (trajets, retour a la maison).</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

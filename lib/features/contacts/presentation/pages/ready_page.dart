@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
-class LocationPage extends StatelessWidget {
-  const LocationPage({super.key});
+class ReadyPage extends StatelessWidget {
+  const ReadyPage({super.key});
 
-  static const routeName = '/onboarding/location';
+  static const routeName = '/onboarding/ready';
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFCFD),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -17,7 +18,7 @@ class LocationPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Localisation',
+                  'Tout est pret',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w700,
@@ -25,10 +26,10 @@ class LocationPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "Cette etape arrive bientot. Vous pourrez activer la localisation ici.",
+                  'Votre agenda relationnel est configure. Vous pouvez commencer.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.black54,
+                        color: theme.colorScheme.onSurface.withOpacity(0.6),
                       ),
                 ),
               ],

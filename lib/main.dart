@@ -7,9 +7,10 @@ import 'features/contacts/presentation/pages/circles_page.dart';
 import 'features/contacts/presentation/pages/cadence_page.dart';
 import 'features/contacts/presentation/pages/first_contacts_page.dart';
 import 'features/contacts/presentation/pages/import_contacts_page.dart';
-import 'features/contacts/presentation/pages/location_page.dart';
 import 'features/contacts/presentation/pages/onboarding_gate.dart';
+import 'features/contacts/presentation/pages/ready_page.dart';
 import 'features/contacts/presentation/pages/welcome_page.dart';
+import 'features/settings/presentation/pages/location_or_availability_page.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -85,7 +86,9 @@ class MyApp extends StatelessWidget {
         FirstContactsPage.routeName: (_) => const FirstContactsPage(),
         CadencePage.routeName: (_) => const CadencePage(),
         ImportContactsPage.routeName: (_) => const ImportContactsPage(),
-        LocationPage.routeName: (_) => const LocationPage(),
+        LocationOrAvailabilityPage.routeName: (_) =>
+            const LocationOrAvailabilityPage(),
+        ReadyPage.routeName: (_) => const ReadyPage(),
         AppShell.routeName: (_) => const AppShell(),
       },
     );
