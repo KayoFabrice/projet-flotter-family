@@ -45,6 +45,11 @@ class FakeContactsRepository implements ContactsRepository {
   }
 
   @override
+  Future<void> createImportedContacts(List<Contact> contacts) async {
+    _stored.addAll(contacts);
+  }
+
+  @override
   Future<int> countOnboardingContacts() async => _stored.length;
 }
 
@@ -145,7 +150,7 @@ void main() {
     final contactsRepository = FakeContactsRepository(
       initial: [
         Contact(
-          id: 1,
+          id: '1',
           displayName: 'Alex',
           circle: ContactCircle.proches,
           createdAt: DateTime(2026, 1, 1).toUtc().toIso8601String(),

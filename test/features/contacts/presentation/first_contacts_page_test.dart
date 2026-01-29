@@ -8,13 +8,13 @@ void main() {
   testWidgets('FirstContactsContent shows contacts and CTAs', (tester) async {
     final contacts = [
       Contact(
-        id: 1,
+        id: '1',
         displayName: 'Alex',
         circle: ContactCircle.amis,
         createdAt: DateTime(2026, 1, 1).toUtc().toIso8601String(),
       ),
       Contact(
-        id: 2,
+        id: '2',
         displayName: 'Sarah',
         circle: ContactCircle.proches,
         createdAt: DateTime(2026, 1, 2).toUtc().toIso8601String(),
@@ -42,19 +42,19 @@ void main() {
   testWidgets('Add button is disabled when three contacts are present', (tester) async {
     final contacts = [
       Contact(
-        id: 1,
+        id: '1',
         displayName: 'Alex',
         circle: ContactCircle.amis,
         createdAt: DateTime(2026, 1, 1).toUtc().toIso8601String(),
       ),
       Contact(
-        id: 2,
+        id: '2',
         displayName: 'Sarah',
         circle: ContactCircle.proches,
         createdAt: DateTime(2026, 1, 2).toUtc().toIso8601String(),
       ),
       Contact(
-        id: 3,
+        id: '3',
         displayName: 'Leo',
         circle: ContactCircle.eloignes,
         createdAt: DateTime(2026, 1, 3).toUtc().toIso8601String(),
