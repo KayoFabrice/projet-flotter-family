@@ -34,6 +34,15 @@ class FakeContactsImportRepository implements ContactsImportRepository {
 
 class FakeContactsRepository implements ContactsRepository {
   @override
+  Future<void> createContact(Contact contact) async {}
+
+  @override
+  Future<List<Contact>> fetchContacts() async => const [];
+
+  @override
+  Future<List<Contact>> searchContacts(String query) async => const [];
+
+  @override
   Future<void> createImportedContacts(List<Contact> contacts) async {}
 
   @override
