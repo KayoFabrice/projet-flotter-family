@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../features/contacts/presentation/pages/contacts_page.dart';
+
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
@@ -14,7 +16,7 @@ class _AppShellState extends State<AppShell> {
 
   static const _pages = <Widget>[
     _PlaceholderPage(title: 'Agenda'),
-    _PlaceholderPage(title: 'Proches'),
+    ContactsPage(),
     _PlaceholderPage(title: 'Reglages'),
   ];
 

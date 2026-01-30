@@ -14,6 +14,33 @@ class ContactsService {
     return _repository.fetchOnboardingContacts();
   }
 
+  Future<List<Contact>> loadContacts() {
+    return _repository.fetchContacts();
+  }
+
+  Future<List<Contact>> searchContacts(String query) {
+    return _repository.searchContacts(query);
+  }
+
+  Future<Contact> createContact({
+    required String displayName,
+    required ContactCircle circle,
+    String? phone,
+    String? email,
+  }) async {
+    final now = DateTime.now();
+    final contact = Contact(
+      id: const Uuid().v4(),
+      displayName: displayName,
+      circle: circle,
+      createdAt: now.toUtc().toIso8601String(),
+      phone: phone,
+      email: email,
+    );
+    await _repository.createContact(contact);
+    return contact;
+  }
+
   Future<Contact> createOnboardingContact({
     required String displayName,
     required ContactCircle circle,
