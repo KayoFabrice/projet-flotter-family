@@ -4,7 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../domain/contact.dart';
 import '../../domain/contact_circle.dart';
+import '../../domain/contact_history_entry.dart';
 import '../providers/contact_detail_provider.dart';
+import '../widgets/circle_selector_sheet.dart';
 import 'contact_edit_page.dart';
 
 class ContactDetailArgs {
@@ -39,6 +41,10 @@ class ContactDetailPage extends ConsumerWidget {
         child: contactState.when(
           data: (state) => _ContactDetailBody(
             contact: state.contact,
+            cadenceDays: state.cadenceDays,
+            nextSuggestedAt: state.nextSuggestedAt,
+            recentHistory: state.recentHistory,
+            isUpdating: state.isUpdating,
             onEdit: () async {
               final result = await Navigator.of(context).pushNamed(
                 ContactEditPage.editRouteName,
@@ -47,6 +53,33 @@ class ContactDetailPage extends ConsumerWidget {
               if (result == ContactEditResult.deleted && context.mounted) {
                 Navigator.of(context).pop();
               }
+            },
+            onChangeCategory: () async {
+              final selected = await CircleSelectorSheet.show(
+                context,
+                initialCircle: state.contact.circle,
+              );
+              if (selected == null || !context.mounted) {
+                return;
+              }
+              if (selected == state.contact.circle) {
+                return;
+              }
+              final updated = await ref
+                  .read(contactDetailProvider(contactId).notifier)
+                  .updateContactCircle(selected);
+              if (!context.mounted) {
+                return;
+              }
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    updated
+                        ? 'Catégorie mise à jour.'
+                        : 'Impossible de mettre à jour la catégorie.',
+                  ),
+                ),
+              );
             },
           ),
           loading: () => const Center(
@@ -76,11 +109,21 @@ class ContactDetailPage extends ConsumerWidget {
 class _ContactDetailBody extends StatelessWidget {
   const _ContactDetailBody({
     required this.contact,
+    required this.cadenceDays,
+    required this.nextSuggestedAt,
+    required this.recentHistory,
+    required this.isUpdating,
     required this.onEdit,
+    required this.onChangeCategory,
   });
 
   final Contact contact;
+  final int cadenceDays;
+  final DateTime? nextSuggestedAt;
+  final List<ContactHistoryEntry> recentHistory;
+  final bool isUpdating;
   final VoidCallback onEdit;
+  final VoidCallback onChangeCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +141,11 @@ class _ContactDetailBody extends StatelessWidget {
           displayName: contact.displayName,
           relationLabel: contact.circle.label,
         ),
+        const SizedBox(height: 16),
+        _CategoryCard(
+          value: contact.circle.label,
+          onChange: isUpdating ? null : onChangeCategory,
+        ),
         const SizedBox(height: 24),
         _ActionsGrid(
           onWrite: () => _showWriteOptions(context),
@@ -112,13 +160,13 @@ class _ContactDetailBody extends StatelessWidget {
         _StatsCard(
           mutedText: mutedText,
           lastContact: 'Non renseigné',
-          cadence: 'Non renseignée',
-          nextSuggested: 'Non renseigné',
+          cadence: _formatCadenceDays(cadenceDays),
+          nextSuggested: _formatNextSuggested(nextSuggestedAt),
         ),
         const SizedBox(height: 28),
         _HistorySection(
           mutedText: mutedText,
-          items: const [],
+          items: recentHistory.map(_mapHistoryEntry).toList(),
         ),
       ],
     );
@@ -192,6 +240,116 @@ class _ContactDetailBody extends StatelessWidget {
         );
       },
     );
+  }
+
+  String _formatCadenceDays(int cadenceDays) {
+    if (cadenceDays <= 0) {
+      return 'Non renseignée';
+    }
+    switch (cadenceDays) {
+      case 7:
+        return '1 semaine';
+      case 14:
+        return '2 semaines';
+      case 30:
+        return '1 mois';
+      default:
+        return '$cadenceDays jours';
+    }
+  }
+
+  String _formatNextSuggested(DateTime? nextSuggestedAt) {
+    if (nextSuggestedAt == null) {
+      return 'Non renseigné';
+    }
+    final now = DateTime.now();
+    final nextLocal = nextSuggestedAt.toLocal();
+    if (_isSameDate(nextLocal, now)) {
+      return "Aujourd'hui";
+    }
+    final today = DateTime(now.year, now.month, now.day);
+    final deltaDays = nextLocal.difference(today).inDays;
+    if (deltaDays == 1) {
+      return 'Demain';
+    }
+    if (deltaDays > 1 && deltaDays <= 7) {
+      return 'Dans $deltaDays jours';
+    }
+    const months = [
+      'janvier',
+      'février',
+      'mars',
+      'avril',
+      'mai',
+      'juin',
+      'juillet',
+      'août',
+      'septembre',
+      'octobre',
+      'novembre',
+      'décembre',
+    ];
+    final monthLabel = nextLocal.month >= 1 && nextLocal.month <= 12
+        ? months[nextLocal.month - 1]
+        : '';
+    return '${nextLocal.day} $monthLabel';
+  }
+
+  bool _isSameDate(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  _HistoryItem _mapHistoryEntry(ContactHistoryEntry entry) {
+    switch (entry.actionType) {
+      case 'call':
+        return _HistoryItem(
+          title: 'Appel sortant',
+          dateLabel: _formatHistoryDate(entry.occurredAt),
+          icon: Icons.phone,
+        );
+      case 'message':
+        return _HistoryItem(
+          title: 'Message',
+          dateLabel: _formatHistoryDate(entry.occurredAt),
+          icon: Icons.message,
+        );
+      case 'meeting':
+        return _HistoryItem(
+          title: 'Rencontre',
+          dateLabel: _formatHistoryDate(entry.occurredAt),
+          icon: Icons.calendar_today,
+        );
+      default:
+        return _HistoryItem(
+          title: 'Action',
+          dateLabel: _formatHistoryDate(entry.occurredAt),
+          icon: Icons.history,
+        );
+    }
+  }
+
+  String _formatHistoryDate(String isoDate) {
+    final parsed = DateTime.tryParse(isoDate);
+    if (parsed == null) {
+      return isoDate;
+    }
+    const months = [
+      'janvier',
+      'février',
+      'mars',
+      'avril',
+      'mai',
+      'juin',
+      'juillet',
+      'août',
+      'septembre',
+      'octobre',
+      'novembre',
+      'décembre',
+    ];
+    final monthLabel =
+        parsed.month >= 1 && parsed.month <= 12 ? months[parsed.month - 1] : '';
+    return '${parsed.day} $monthLabel';
   }
 
   Future<void> _launchUri(BuildContext context, Uri uri) async {
@@ -310,6 +468,59 @@ class _ProfileSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CategoryCard extends StatelessWidget {
+  const _CategoryCard({
+    required this.value,
+    required this.onChange,
+  });
+
+  final String value;
+  final VoidCallback? onChange;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final mutedText = theme.colorScheme.onSurface.withOpacity(0.6);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.dividerColor),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Catégorie',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: mutedText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: onChange,
+            child: const Text('Changer'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -52,9 +52,9 @@ development_status:
   epic-1-retrospective: optional
   epic-2: backlog
   2-1-voir-ses-proches-par-categories-avec-recherche-simple: done
-  2-2-ajouter-un-proche-manuellement-dans-une-categorie: ready-for-dev
-  2-3-modifier-ou-retirer-un-proche-existant: ready-for-dev
-  2-4-definir-la-cadence-par-categorie: ready-for-dev
+  2-2-ajouter-un-proche-manuellement-dans-une-categorie: done
+  2-3-modifier-ou-retirer-un-proche-existant: done
+  2-4-definir-la-cadence-par-categorie: done
   2-5-reprioriser-un-proche-en-changeant-sa-categorie-priorite: backlog
   2-6-ajuster-les-plages-horaires-et-activer-desactiver-des-categories: backlog
   epic-2-retrospective: optional
