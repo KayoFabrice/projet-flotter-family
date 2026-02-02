@@ -15,6 +15,7 @@ class AppDatabase {
   static const contactHistoryTable = 'contact_history';
   static const settingsFlagsTable = 'settings_flags';
   static const availabilityWindowsTable = 'availability_windows';
+  static const restWindowsTable = 'rest_windows';
   static const categorySettingsTable = 'category_settings';
   static const timeSlotPresetsTable = 'time_slot_presets';
   static const settingsCategoriesTable = 'settings_categories';
@@ -31,7 +32,7 @@ class AppDatabase {
     final dbPath = join(await getDatabasesPath(), _databaseName);
     final db = await openDatabase(
       dbPath,
-      version: 14,
+      version: 15,
       onCreate: (database, version) async {
         await database.execute(
           'CREATE TABLE $onboardingTable (id INTEGER PRIMARY KEY, step TEXT NOT NULL)',
@@ -56,6 +57,9 @@ class AppDatabase {
         );
         await database.execute(
           'CREATE TABLE $availabilityWindowsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, start_minute INTEGER NOT NULL, end_minute INTEGER NOT NULL)',
+        );
+        await database.execute(
+          'CREATE TABLE $restWindowsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, start_minute INTEGER NOT NULL, end_minute INTEGER NOT NULL)',
         );
         await database.execute(
           'CREATE TABLE $categorySettingsTable (circle TEXT PRIMARY KEY, enabled INTEGER NOT NULL)',
@@ -147,6 +151,11 @@ class AppDatabase {
           );
           await database.execute(
             'CREATE TABLE $settingsCategoriesTable (id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT, is_active INTEGER NOT NULL)',
+          );
+        }
+        if (oldVersion < 15) {
+          await database.execute(
+            'CREATE TABLE $restWindowsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, start_minute INTEGER NOT NULL, end_minute INTEGER NOT NULL)',
           );
         }
       },
