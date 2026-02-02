@@ -15,6 +15,9 @@ class AppDatabase {
   static const contactHistoryTable = 'contact_history';
   static const settingsFlagsTable = 'settings_flags';
   static const availabilityWindowsTable = 'availability_windows';
+  static const categorySettingsTable = 'category_settings';
+  static const timeSlotPresetsTable = 'time_slot_presets';
+  static const settingsCategoriesTable = 'settings_categories';
   static const performanceMetricsTable = 'performance_metrics';
 
   Database? _database;
@@ -28,7 +31,7 @@ class AppDatabase {
     final dbPath = join(await getDatabasesPath(), _databaseName);
     final db = await openDatabase(
       dbPath,
-      version: 12,
+      version: 14,
       onCreate: (database, version) async {
         await database.execute(
           'CREATE TABLE $onboardingTable (id INTEGER PRIMARY KEY, step TEXT NOT NULL)',
@@ -53,6 +56,15 @@ class AppDatabase {
         );
         await database.execute(
           'CREATE TABLE $availabilityWindowsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, start_minute INTEGER NOT NULL, end_minute INTEGER NOT NULL)',
+        );
+        await database.execute(
+          'CREATE TABLE $categorySettingsTable (circle TEXT PRIMARY KEY, enabled INTEGER NOT NULL)',
+        );
+        await database.execute(
+          'CREATE TABLE $timeSlotPresetsTable (preset_key TEXT PRIMARY KEY)',
+        );
+        await database.execute(
+          'CREATE TABLE $settingsCategoriesTable (id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT, is_active INTEGER NOT NULL)',
         );
         await database.execute(
           'CREATE TABLE $performanceMetricsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, metric_key TEXT NOT NULL, duration_ms INTEGER NOT NULL, recorded_at TEXT NOT NULL)',
@@ -122,6 +134,19 @@ class AppDatabase {
         if (oldVersion < 12) {
           await database.execute(
             'CREATE TABLE $contactHistoryTable (id INTEGER PRIMARY KEY AUTOINCREMENT, contact_id TEXT NOT NULL, action_type TEXT NOT NULL, occurred_at TEXT NOT NULL)',
+          );
+        }
+        if (oldVersion < 13) {
+          await database.execute(
+            'CREATE TABLE $categorySettingsTable (circle TEXT PRIMARY KEY, enabled INTEGER NOT NULL)',
+          );
+        }
+        if (oldVersion < 14) {
+          await database.execute(
+            'CREATE TABLE $timeSlotPresetsTable (preset_key TEXT PRIMARY KEY)',
+          );
+          await database.execute(
+            'CREATE TABLE $settingsCategoriesTable (id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT, is_active INTEGER NOT NULL)',
           );
         }
       },
