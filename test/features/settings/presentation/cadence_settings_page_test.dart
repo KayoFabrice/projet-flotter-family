@@ -1,57 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:projet_flutter_famille/features/contacts/domain/contact_cadence.dart';
-import 'package:projet_flutter_famille/features/contacts/domain/contact_circle.dart';
+import 'package:projet_flutter_famille/features/settings/data/settings_flags_repository.dart';
 import 'package:projet_flutter_famille/features/settings/presentation/pages/cadence_settings_page.dart';
+import 'package:projet_flutter_famille/features/settings/presentation/providers/global_cadence_provider.dart';
+import 'package:projet_flutter_famille/features/settings/presentation/providers/settings_flags_provider.dart';
+
+class FakeSettingsFlagsRepository implements SettingsFlagsRepository {
+  final Map<String, bool> boolStorage = {};
+  final Map<String, String> stringStorage = {};
+
+  @override
+  Future<bool?> fetchBool(String key) async => boolStorage[key];
+
+  @override
+  Future<void> saveBool(String key, bool value) async {
+    boolStorage[key] = value;
+  }
+
+  @override
+  Future<String?> fetchString(String key) async => stringStorage[key];
+
+  @override
+  Future<void> saveString(String key, String value) async {
+    stringStorage[key] = value;
+  }
+}
 
 void main() {
-  testWidgets('CadenceSettingsContent shows defaults and saves', (tester) async {
-    var saved = false;
-    final cadences = [
-      ContactCadence(circle: ContactCircle.proches, cadenceDays: 7),
-      ContactCadence(circle: ContactCircle.eloignes, cadenceDays: 30),
-      ContactCadence(circle: ContactCircle.partenaire, cadenceDays: 14),
-      ContactCadence(circle: ContactCircle.amis, cadenceDays: 14),
-    ];
+  testWidgets('Cadence globale updates selection', (tester) async {
+    final repository = FakeSettingsFlagsRepository();
+    repository.stringStorage['global_cadence'] = 'hebdomadaire';
+    final container = ProviderContainer(
+      overrides: [
+        settingsFlagsRepositoryProvider.overrideWithValue(repository),
+      ],
+    );
+    addTearDown(container.dispose);
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: CadenceSettingsContent(
-            cadences: cadences,
-            onCadenceSelected: (_, __) {},
-            onSavePressed: () {
-              saved = true;
-            },
-          ),
-        ),
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: CadenceSettingsPage()),
       ),
     );
 
-    expect(find.text('Cadence'), findsOneWidget);
-    expect(find.text('Parents'), findsOneWidget);
-    expect(find.text('Freres & Soeurs'), findsOneWidget);
-    expect(find.text('Grand-parents'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Amis proches'), 200);
-    expect(find.text('Amis proches'), findsOneWidget);
-    expect(find.text('Enregistrer'), findsOneWidget);
+    await tester.pumpAndSettle();
 
-    Future<ChoiceChip> findChip(ValueKey<String> key) async {
-      await tester.scrollUntilVisible(find.byKey(key), 200);
-      return tester.widget<ChoiceChip>(find.byKey(key));
-    }
+    expect(find.text('Hebdomadaire'), findsOneWidget);
 
-    final prochesChip = await findChip(const ValueKey('cadence-proches-7'));
-    final eloignesChip = await findChip(const ValueKey('cadence-eloignes-30'));
-    final partenaireChip = await findChip(const ValueKey('cadence-partenaire-14'));
-    final amisChip = await findChip(const ValueKey('cadence-amis-14'));
+    await tester.tap(find.text('Mensuel'));
+    await tester.pumpAndSettle();
 
-    expect(prochesChip.selected, isTrue);
-    expect(eloignesChip.selected, isTrue);
-    expect(partenaireChip.selected, isTrue);
-    expect(amisChip.selected, isTrue);
-
-    await tester.tap(find.text('Enregistrer'));
-    expect(saved, isTrue);
+    final state = container.read(globalCadenceProvider).value;
+    expect(state?.selectedKey, 'mensuel');
   });
 }
