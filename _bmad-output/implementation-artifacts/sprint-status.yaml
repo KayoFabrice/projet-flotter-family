@@ -56,10 +56,10 @@ development_status:
   2-3-modifier-ou-retirer-un-proche-existant: done
   2-4-definir-la-cadence-par-categorie: done
   2-5-reprioriser-un-proche-en-changeant-sa-categorie-priorite: done
-  2-6-ajuster-les-plages-horaires-et-activer-desactiver-des-categories: ready-for-dev
+  2-6-ajuster-les-plages-horaires-et-activer-desactiver-des-categories: review
   epic-2-retrospective: optional
   epic-3: backlog
-  3-1-evaluer-l-eligibilite-d-un-rappel-lieu-plage-horaire: ready-for-dev
+  3-1-evaluer-l-eligibilite-d-un-rappel-lieu-plage-horaire: done
   3-2-bloquer-les-rappels-pendant-les-periodes-de-repos: ready-for-dev
   3-3-appliquer-un-cooldown-apres-rappel-ignore-ou-reporte: ready-for-dev
   3-4-selectionner-le-meilleur-proche-a-suggerer: ready-for-dev
