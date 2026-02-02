@@ -18,6 +18,7 @@ class FakeAvailabilityNotifier extends AvailabilityNotifier {
 
 class FakeSettingsFlagsRepository implements SettingsFlagsRepository {
   final Map<String, bool> storage = {};
+  final Map<String, String> stringStorage = {};
 
   @override
   Future<bool?> fetchBool(String key) async => storage[key];
@@ -25,6 +26,14 @@ class FakeSettingsFlagsRepository implements SettingsFlagsRepository {
   @override
   Future<void> saveBool(String key, bool value) async {
     storage[key] = value;
+  }
+
+  @override
+  Future<String?> fetchString(String key) async => stringStorage[key];
+
+  @override
+  Future<void> saveString(String key, String value) async {
+    stringStorage[key] = value;
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../features/contacts/presentation/pages/contacts_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -17,7 +18,7 @@ class _AppShellState extends State<AppShell> {
   static const _pages = <Widget>[
     _PlaceholderPage(title: 'Agenda'),
     ContactsPage(),
-    _PlaceholderPage(title: 'Reglages'),
+    SettingsPage(),
   ];
 
   @override
