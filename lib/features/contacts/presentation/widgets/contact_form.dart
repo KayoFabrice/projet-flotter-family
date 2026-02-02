@@ -17,7 +17,9 @@ class ContactForm extends StatelessWidget {
     required this.onEmailChanged,
     required this.onCircleSelected,
     required this.onSubmit,
-    required this.onCancel,
+    required this.onSecondaryAction,
+    required this.secondaryActionLabel,
+    this.secondaryActionIsDestructive = false,
   });
 
   final TextEditingController nameController;
@@ -32,7 +34,9 @@ class ContactForm extends StatelessWidget {
   final ValueChanged<String> onEmailChanged;
   final ValueChanged<ContactCircle> onCircleSelected;
   final VoidCallback onSubmit;
-  final VoidCallback onCancel;
+  final VoidCallback onSecondaryAction;
+  final String secondaryActionLabel;
+  final bool secondaryActionIsDestructive;
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +96,7 @@ class ContactForm extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Numero',
+            'Numéro',
             style: theme.textTheme.labelLarge?.copyWith(
               color: mutedText,
               fontWeight: FontWeight.w600,
@@ -128,7 +132,7 @@ class ContactForm extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'Categorie',
+            'Relation',
             style: theme.textTheme.labelLarge?.copyWith(
               color: mutedText,
               fontWeight: FontWeight.w600,
@@ -175,8 +179,13 @@ class ContactForm extends StatelessWidget {
           const SizedBox(height: 8),
           Center(
             child: TextButton(
-              onPressed: isSubmitting ? null : onCancel,
-              child: const Text('Annuler'),
+              onPressed: isSubmitting ? null : onSecondaryAction,
+              style: TextButton.styleFrom(
+                foregroundColor: secondaryActionIsDestructive
+                    ? theme.colorScheme.error
+                    : theme.colorScheme.primary,
+              ),
+              child: Text(secondaryActionLabel),
             ),
           ),
         ],
