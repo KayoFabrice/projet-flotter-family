@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/contact_circle.dart';
-import '../providers/contacts_provider.dart';
+import '../providers/contact_form_provider.dart';
+import '../widgets/contact_form.dart';
 
 class ContactEditPage extends ConsumerStatefulWidget {
   const ContactEditPage({super.key});
@@ -15,120 +15,69 @@ class ContactEditPage extends ConsumerStatefulWidget {
 
 class _ContactEditPageState extends ConsumerState<ContactEditPage> {
   final _nameController = TextEditingController();
-  ContactCircle _circle = ContactCircle.proches;
-  bool _saving = false;
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
   Future<void> _saveContact() async {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Renseignez un nom pour continuer.'),
-        ),
-      );
-      return;
-    }
-    setState(() {
-      _saving = true;
-    });
-    final success = await ref.read(contactsProvider.notifier).addContact(
-          displayName: name,
-          circle: _circle,
-        );
+    final result = await ref.read(contactFormProvider.notifier).submit();
     if (!mounted) {
       return;
     }
-    setState(() {
-      _saving = false;
-    });
-    if (!success) {
+    if (result == ContactFormSubmitResult.success) {
+      Navigator.of(context).pop();
+      return;
+    }
+    if (result == ContactFormSubmitResult.failure) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Impossible d\'ajouter le proche.'),
         ),
       );
-      return;
     }
-    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final formState = ref.watch(contactFormProvider);
+    final state = formState.value ?? ContactFormState.initial();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ajouter un proche'),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Nom du proche',
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _nameController,
-                textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(
-                  hintText: 'Ex: Sarah Dupont',
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Categorie',
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
-                ),
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<ContactCircle>(
-                value: _circle,
-                items: ContactCircle.values
-                    .map(
-                      (circle) => DropdownMenuItem(
-                        value: circle,
-                        child: Text(circle.label),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (circle) {
-                  if (circle == null) {
-                    return;
-                  }
-                  setState(() {
-                    _circle = circle;
-                  });
-                },
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _saving ? null : _saveContact,
-                  child: _saving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Enregistrer'),
-                ),
-              ),
-            ],
-          ),
+        child: ContactForm(
+          nameController: _nameController,
+          phoneController: _phoneController,
+          emailController: _emailController,
+          selectedCircle: state.circle,
+          nameErrorText: state.nameError,
+          circleErrorText: state.circleError,
+          isSubmitting: state.isSubmitting,
+          onNameChanged: (value) {
+            ref.read(contactFormProvider.notifier).updateName(value);
+          },
+          onPhoneChanged: (value) {
+            ref.read(contactFormProvider.notifier).updatePhone(value);
+          },
+          onEmailChanged: (value) {
+            ref.read(contactFormProvider.notifier).updateEmail(value);
+          },
+          onCircleSelected: (circle) {
+            ref.read(contactFormProvider.notifier).updateCircle(circle);
+          },
+          onSubmit: _saveContact,
+          onCancel: () {
+            Navigator.of(context).pop();
+          },
         ),
       ),
     );
