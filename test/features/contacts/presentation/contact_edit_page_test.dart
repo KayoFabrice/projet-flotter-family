@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:projet_flutter_famille/features/contacts/data/cadence_repository.dart';
+import 'package:projet_flutter_famille/features/contacts/data/contact_history_repository.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact.dart';
+import 'package:projet_flutter_famille/features/contacts/domain/contact_cadence.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_circle.dart';
+import 'package:projet_flutter_famille/features/contacts/domain/contact_history_entry.dart';
 import 'package:projet_flutter_famille/features/contacts/data/contacts_repository.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/pages/contact_edit_page.dart';
+import 'package:projet_flutter_famille/features/contacts/presentation/providers/contact_detail_provider.dart';
+import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_cadence_provider.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_contacts_provider.dart';
 
 class FakeContactsRepository implements ContactsRepository {
@@ -67,6 +73,40 @@ class FakeContactsRepository implements ContactsRepository {
   Future<int> countOnboardingContacts() async => _stored.length;
 }
 
+class FakeCadenceRepository implements CadenceRepository {
+  FakeCadenceRepository(this._stored);
+
+  final Map<ContactCircle, int> _stored;
+
+  @override
+  Future<Map<ContactCircle, int>> fetchCadences() async => Map.of(_stored);
+
+  @override
+  Future<void> saveCadences(List<ContactCadence> cadences) async {
+    _stored
+      ..clear()
+      ..addEntries(
+        cadences.map(
+          (cadence) => MapEntry(cadence.circle, cadence.cadenceDays),
+        ),
+      );
+  }
+}
+
+class FakeContactHistoryRepository implements ContactHistoryRepository {
+  FakeContactHistoryRepository(this._stored);
+
+  final Map<String, List<ContactHistoryEntry>> _stored;
+
+  @override
+  Future<List<ContactHistoryEntry>> fetchRecentHistory(
+    String contactId, {
+    int limit = 5,
+  }) async {
+    return List.unmodifiable(_stored[contactId] ?? const []);
+  }
+}
+
 void main() {
   testWidgets('ContactEditPage shows inline validation errors', (tester) async {
     await tester.pumpWidget(
@@ -104,6 +144,17 @@ void main() {
           contactsRepositoryProvider.overrideWithValue(
             FakeContactsRepository(initial: [contact]),
           ),
+          cadenceRepositoryProvider.overrideWithValue(
+            FakeCadenceRepository({
+              ContactCircle.proches: 7,
+              ContactCircle.eloignes: 30,
+              ContactCircle.partenaire: 14,
+              ContactCircle.amis: 14,
+            }),
+          ),
+          contactHistoryRepositoryProvider.overrideWithValue(
+            FakeContactHistoryRepository(const {}),
+          ),
         ],
         child: MaterialApp(
           home: ContactEditPage(
@@ -134,6 +185,17 @@ void main() {
         overrides: [
           contactsRepositoryProvider.overrideWithValue(
             FakeContactsRepository(initial: [contact]),
+          ),
+          cadenceRepositoryProvider.overrideWithValue(
+            FakeCadenceRepository({
+              ContactCircle.proches: 7,
+              ContactCircle.eloignes: 30,
+              ContactCircle.partenaire: 14,
+              ContactCircle.amis: 14,
+            }),
+          ),
+          contactHistoryRepositoryProvider.overrideWithValue(
+            FakeContactHistoryRepository(const {}),
           ),
         ],
         child: MaterialApp(
@@ -170,6 +232,17 @@ void main() {
         overrides: [
           contactsRepositoryProvider.overrideWithValue(
             FakeContactsRepository(initial: [contact]),
+          ),
+          cadenceRepositoryProvider.overrideWithValue(
+            FakeCadenceRepository({
+              ContactCircle.proches: 7,
+              ContactCircle.eloignes: 30,
+              ContactCircle.partenaire: 14,
+              ContactCircle.amis: 14,
+            }),
+          ),
+          contactHistoryRepositoryProvider.overrideWithValue(
+            FakeContactHistoryRepository(const {}),
           ),
         ],
         child: MaterialApp(
