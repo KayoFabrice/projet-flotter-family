@@ -55,23 +55,23 @@ development_status:
   2-2-ajouter-un-proche-manuellement-dans-une-categorie: done
   2-3-modifier-ou-retirer-un-proche-existant: done
   2-4-definir-la-cadence-par-categorie: done
-  2-5-reprioriser-un-proche-en-changeant-sa-categorie-priorite: backlog
-  2-6-ajuster-les-plages-horaires-et-activer-desactiver-des-categories: backlog
+  2-5-reprioriser-un-proche-en-changeant-sa-categorie-priorite: done
+  2-6-ajuster-les-plages-horaires-et-activer-desactiver-des-categories: ready-for-dev
   epic-2-retrospective: optional
   epic-3: backlog
-  3-1-evaluer-l-eligibilite-d-un-rappel-lieu-plage-horaire: backlog
-  3-2-bloquer-les-rappels-pendant-les-periodes-de-repos: backlog
-  3-3-appliquer-un-cooldown-apres-rappel-ignore-ou-reporte: backlog
-  3-4-selectionner-le-meilleur-proche-a-suggerer: backlog
-  3-5-utiliser-un-catalogue-de-messages-chaleureux-et-approuves: backlog
+  3-1-evaluer-l-eligibilite-d-un-rappel-lieu-plage-horaire: ready-for-dev
+  3-2-bloquer-les-rappels-pendant-les-periodes-de-repos: ready-for-dev
+  3-3-appliquer-un-cooldown-apres-rappel-ignore-ou-reporte: ready-for-dev
+  3-4-selectionner-le-meilleur-proche-a-suggerer: ready-for-dev
+  3-5-utiliser-un-catalogue-de-messages-chaleureux-et-approuves: ready-for-dev
   epic-3-retrospective: optional
   epic-4: backlog
-  4-1-afficher-une-suggestion-claire-dans-l-agenda: backlog
-  4-2-lancer-ecrire-depuis-une-notification-ou-une-carte: backlog
-  4-3-lancer-appeler-depuis-une-notification-ou-une-carte: backlog
-  4-4-gerer-pas-le-bon-moment-et-plus-tard: backlog
-  4-5-voir-le-detail-d-un-proche-avec-metriques-et-historique: backlog
-  4-6-mettre-a-jour-l-historique-de-facon-fiable-apres-action: backlog
-  4-7-se-comporter-correctement-en-mode-hors-ligne: backlog
-  4-8-respecter-les-exigences-minimales-de-publication-store: backlog
+  4-1-afficher-une-suggestion-claire-dans-l-agenda: ready-for-dev
+  4-2-lancer-ecrire-depuis-une-notification-ou-une-carte: ready-for-dev
+  4-3-lancer-appeler-depuis-une-notification-ou-une-carte: ready-for-dev
+  4-4-gerer-pas-le-bon-moment-et-plus-tard: ready-for-dev
+  4-5-voir-le-detail-d-un-proche-avec-metriques-et-historique: ready-for-dev
+  4-6-mettre-a-jour-l-historique-de-facon-fiable-apres-action: ready-for-dev
+  4-7-se-comporter-correctement-en-mode-hors-ligne: ready-for-dev
+  4-8-respecter-les-exigences-minimales-de-publication-store: ready-for-dev
   epic-4-retrospective: optional

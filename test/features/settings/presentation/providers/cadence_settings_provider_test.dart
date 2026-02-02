@@ -1,28 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:projet_flutter_famille/features/contacts/data/cadence_repository.dart';
-import 'package:projet_flutter_famille/features/contacts/domain/contact_cadence.dart';
-import 'package:projet_flutter_famille/features/contacts/domain/contact_circle.dart';
 import 'package:projet_flutter_famille/features/settings/data/settings_flags_repository.dart';
-import 'package:projet_flutter_famille/features/settings/presentation/providers/cadence_settings_provider.dart';
-import 'package:projet_flutter_famille/features/settings/presentation/providers/degraded_mode_provider.dart';
-
-class FakeCadenceRepository implements CadenceRepository {
-  FakeCadenceRepository({Map<ContactCircle, int>? initial})
-      : _stored = Map<ContactCircle, int>.from(initial ?? const {});
-
-  Map<ContactCircle, int> _stored;
-
-  @override
-  Future<Map<ContactCircle, int>> fetchCadences() async => Map.unmodifiable(_stored);
-
-  @override
-  Future<void> saveCadences(List<ContactCadence> cadences) async {
-    _stored = {
-      for (final cadence in cadences) cadence.circle: cadence.cadenceDays,
-    };
-  }
-}
+import 'package:projet_flutter_famille/features/settings/presentation/providers/global_cadence_provider.dart';
+import 'package:projet_flutter_famille/features/settings/presentation/providers/settings_flags_provider.dart';
 
 class FakeSettingsFlagsRepository implements SettingsFlagsRepository {
   final Map<String, bool> boolStorage = {};
@@ -46,41 +26,23 @@ class FakeSettingsFlagsRepository implements SettingsFlagsRepository {
 }
 
 void main() {
-  test('CadenceSettingsProvider loads defaults and persists updates', () async {
-    final fakeRepository = FakeCadenceRepository();
-    final fakeSettingsRepository = FakeSettingsFlagsRepository();
+  test('GlobalCadenceProvider loads default and persists update', () async {
+    final repository = FakeSettingsFlagsRepository();
     final container = ProviderContainer(
       overrides: [
-        cadenceSettingsRepositoryProvider.overrideWithValue(fakeRepository),
-        settingsFlagsRepositoryProvider.overrideWithValue(fakeSettingsRepository),
+        settingsFlagsRepositoryProvider.overrideWithValue(repository),
       ],
     );
     addTearDown(container.dispose);
 
-    final initial = await container.read(cadenceSettingsProvider.future);
-    expect(
-      initial,
-      [
-        ContactCadence(circle: ContactCircle.proches, cadenceDays: 7),
-        ContactCadence(circle: ContactCircle.eloignes, cadenceDays: 30),
-        ContactCadence(circle: ContactCircle.partenaire, cadenceDays: 14),
-        ContactCadence(circle: ContactCircle.amis, cadenceDays: 14),
-      ],
-    );
+    final initial = await container.read(globalCadenceProvider.future);
+    expect(initial.selectedKey, 'hebdomadaire');
 
-    final notifier = container.read(cadenceSettingsProvider.notifier);
-    notifier.updateCadence(ContactCircle.proches, 14);
-    final persisted = await notifier.persist();
+    final notifier = container.read(globalCadenceProvider.notifier);
+    notifier.select('mensuel');
+    final saved = await notifier.persist();
 
-    expect(persisted, isTrue);
-    expect(
-      await fakeRepository.fetchCadences(),
-      {
-        ContactCircle.proches: 14,
-        ContactCircle.eloignes: 30,
-        ContactCircle.partenaire: 14,
-        ContactCircle.amis: 14,
-      },
-    );
+    expect(saved, isTrue);
+    expect(repository.stringStorage['global_cadence'], 'mensuel');
   });
 }

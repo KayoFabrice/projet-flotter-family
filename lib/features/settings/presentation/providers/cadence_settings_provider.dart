@@ -7,7 +7,7 @@ import '../../../contacts/domain/contact_cadence.dart';
 import '../../../contacts/domain/contact_circle.dart';
 import '../../../contacts/presentation/providers/cadence_rules_provider.dart';
 import '../../domain/cadence_update_service.dart';
-import 'degraded_mode_provider.dart';
+import 'settings_flags_provider.dart';
 
 final cadenceSettingsRepositoryProvider = Provider<CadenceRepository>((ref) {
   return CadenceRepositoryImpl(AppDatabase.instance);
@@ -25,8 +25,8 @@ final cadenceUpdateServiceProvider = Provider<CadenceUpdateService>((ref) {
 
 final cadenceSettingsProvider =
     AsyncNotifierProvider<CadenceSettingsNotifier, List<ContactCadence>>(
-  CadenceSettingsNotifier.new,
-);
+      CadenceSettingsNotifier.new,
+    );
 
 class CadenceSettingsNotifier extends AsyncNotifier<List<ContactCadence>> {
   @override

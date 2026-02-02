@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../contacts/domain/contact_cadence.dart';
-import '../../../contacts/domain/contact_circle.dart';
-import '../providers/cadence_settings_provider.dart';
-import '../widgets/cadence_selector.dart';
+import '../../domain/global_cadence.dart';
+import '../providers/global_cadence_provider.dart';
 
 class CadenceSettingsPage extends ConsumerWidget {
   const CadenceSettingsPage({super.key});
@@ -13,42 +11,75 @@ class CadenceSettingsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cadenceState = ref.watch(cadenceSettingsProvider);
+    final state = ref.watch(globalCadenceProvider);
+    final theme = Theme.of(context);
+    final muted = theme.colorScheme.onSurface.withOpacity(0.6);
 
-    Future<void> handleSave() async {
-      final saved = await ref.read(cadenceSettingsProvider.notifier).persist();
-      if (!context.mounted) {
-        return;
-      }
-      if (!saved) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Impossible d'enregistrer la cadence.")),
-        );
-      }
-    }
-
-    return cadenceState.when(
-      data: (cadences) {
-        return Scaffold(
-          body: SafeArea(
-            child: CadenceSettingsContent(
-              cadences: cadences,
-              onCadenceSelected: (circle, cadenceDays) {
-                ref
-                    .read(cadenceSettingsProvider.notifier)
-                    .updateCadence(circle, cadenceDays);
-              },
-              onSavePressed: handleSave,
-            ),
-          ),
-        );
-      },
-      loading: () => const Scaffold(
+    return state.when(
+      data: (cadence) => Scaffold(
         body: SafeArea(
-          child: Center(child: CircularProgressIndicator()),
+          child: Column(
+            children: [
+              _Header(title: 'Cadence'),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    const SizedBox(height: 12),
+                    Text(
+                      'Frequence globale',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: muted,
+                        letterSpacing: 0.6,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: theme.dividerColor),
+                      ),
+                      child: Column(
+                        children: [
+                          for (final option in cadence.options)
+                            _CadenceRow(
+                              option: option,
+                              selected: option.key == cadence.selectedKey,
+                              isLast: option == cadence.options.last,
+                              onTap: () async {
+                                ref
+                                    .read(globalCadenceProvider.notifier)
+                                    .select(option.key);
+                                await ref
+                                    .read(globalCadenceProvider.notifier)
+                                    .persist();
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Cette frequence determine la regularite des rappels pour vos contacts principaux. Vous pouvez ajuster la cadence pour chaque contact individuellement.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: muted,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      error: (error, stackTrace) => Scaffold(
+      loading: () => const Scaffold(
+        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+      ),
+      error: (_, __) => Scaffold(
         body: SafeArea(
           child: Center(
             child: Column(
@@ -58,7 +89,7 @@ class CadenceSettingsPage extends ConsumerWidget {
                 const SizedBox(height: 12),
                 FilledButton(
                   onPressed: () {
-                    ref.invalidate(cadenceSettingsProvider);
+                    ref.invalidate(globalCadenceProvider);
                   },
                   child: const Text('Reessayer'),
                 ),
@@ -71,89 +102,81 @@ class CadenceSettingsPage extends ConsumerWidget {
   }
 }
 
-class CadenceSettingsContent extends StatelessWidget {
-  const CadenceSettingsContent({
-    super.key,
-    required this.cadences,
-    required this.onCadenceSelected,
-    required this.onSavePressed,
-  });
+class _Header extends StatelessWidget {
+  const _Header({required this.title});
 
-  final List<ContactCadence> cadences;
-  final void Function(ContactCircle circle, int cadenceDays) onCadenceSelected;
-  final VoidCallback onSavePressed;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final muted = theme.colorScheme.onSurface.withOpacity(0.6);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).maybePop();
-                },
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () => Navigator.of(context).maybePop(),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(width: 4),
-              Text(
-                'Cadence',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(width: 40),
+        ],
+      ),
+    );
+  }
+}
+
+class _CadenceRow extends StatelessWidget {
+  const _CadenceRow({
+    required this.option,
+    required this.selected,
+    required this.isLast,
+    required this.onTap,
+  });
+
+  final GlobalCadenceOption option;
+  final bool selected;
+  final bool isLast;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: isLast ? Colors.transparent : theme.dividerColor,
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                option.label,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  color: selected ? theme.colorScheme.primary : null,
                 ),
               ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            'Definissez un rythme par categorie pour adapter les rappels.',
-            style: theme.textTheme.bodyMedium?.copyWith(color: muted),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
-                for (final cadence in cadences) ...[
-                  CadenceSelector(
-                    circle: cadence.circle,
-                    selectedDays: cadence.cadenceDays,
-                    onChanged: (days) {
-                      onCadenceSelected(cadence.circle, days);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                ],
-              ],
             ),
-          ),
+            if (selected) const Icon(Icons.check, size: 20),
+          ],
         ),
-        Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(color: theme.dividerColor),
-            ),
-          ),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: onSavePressed,
-              child: const Text('Enregistrer'),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

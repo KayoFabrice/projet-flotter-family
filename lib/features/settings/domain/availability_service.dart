@@ -1,4 +1,6 @@
 import '../data/availability_repository.dart';
+import '../data/availability_settings_repository.dart';
+import 'availability_settings.dart';
 import 'availability_window.dart';
 
 class AvailabilityService {
@@ -11,15 +13,16 @@ class AvailabilityService {
   }
 
   Future<void> saveWindows(List<AvailabilityWindow> windows) async {
-    _validate(windows);
+    AvailabilityService.validateWindows(windows);
     await _repository.saveWindows(windows);
   }
 
-  void _validate(List<AvailabilityWindow> windows) {
+  static void validateWindows(List<AvailabilityWindow> windows) {
     if (windows.isEmpty) {
       throw ArgumentError('Au moins une plage horaire est requise.');
     }
-    final sorted = [...windows]..sort((a, b) => a.startMinute.compareTo(b.startMinute));
+    final sorted = [...windows]
+      ..sort((a, b) => a.startMinute.compareTo(b.startMinute));
     for (final window in sorted) {
       if (window.startMinute < 0 ||
           window.endMinute > 24 * 60 ||
@@ -34,5 +37,20 @@ class AvailabilityService {
         throw ArgumentError('Plages horaires qui se chevauchent.');
       }
     }
+  }
+}
+
+class AvailabilitySettingsService {
+  AvailabilitySettingsService(this._repository);
+
+  final AvailabilitySettingsRepository _repository;
+
+  Future<AvailabilitySettings> loadSettings() {
+    return _repository.fetchSettings();
+  }
+
+  Future<void> saveSettings(AvailabilitySettings settings) async {
+    AvailabilityService.validateWindows(settings.windows);
+    await _repository.saveSettings(settings);
   }
 }
