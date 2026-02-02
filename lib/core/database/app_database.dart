@@ -11,6 +11,8 @@ class AppDatabase {
   static const selectedCirclesTable = 'selected_circles';
   static const contactsTable = 'contacts';
   static const contactCadencesTable = 'contact_cadences';
+  static const contactCadenceOverridesTable = 'contact_cadence_overrides';
+  static const contactHistoryTable = 'contact_history';
   static const settingsFlagsTable = 'settings_flags';
   static const availabilityWindowsTable = 'availability_windows';
   static const performanceMetricsTable = 'performance_metrics';
@@ -26,7 +28,7 @@ class AppDatabase {
     final dbPath = join(await getDatabasesPath(), _databaseName);
     final db = await openDatabase(
       dbPath,
-      version: 10,
+      version: 12,
       onCreate: (database, version) async {
         await database.execute(
           'CREATE TABLE $onboardingTable (id INTEGER PRIMARY KEY, step TEXT NOT NULL)',
@@ -39,6 +41,12 @@ class AppDatabase {
         );
         await database.execute(
           'CREATE TABLE $contactCadencesTable (circle TEXT PRIMARY KEY, cadence_days INTEGER NOT NULL)',
+        );
+        await database.execute(
+          'CREATE TABLE $contactCadenceOverridesTable (contact_id TEXT PRIMARY KEY, cadence_days INTEGER NOT NULL)',
+        );
+        await database.execute(
+          'CREATE TABLE $contactHistoryTable (id INTEGER PRIMARY KEY AUTOINCREMENT, contact_id TEXT NOT NULL, action_type TEXT NOT NULL, occurred_at TEXT NOT NULL)',
         );
         await database.execute(
           'CREATE TABLE $settingsFlagsTable (setting_key TEXT PRIMARY KEY, setting_value TEXT NOT NULL)',
@@ -104,6 +112,16 @@ class AppDatabase {
         if (oldVersion < 10) {
           await database.execute(
             'CREATE TABLE $performanceMetricsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, metric_key TEXT NOT NULL, duration_ms INTEGER NOT NULL, recorded_at TEXT NOT NULL)',
+          );
+        }
+        if (oldVersion < 11) {
+          await database.execute(
+            'CREATE TABLE $contactCadenceOverridesTable (contact_id TEXT PRIMARY KEY, cadence_days INTEGER NOT NULL)',
+          );
+        }
+        if (oldVersion < 12) {
+          await database.execute(
+            'CREATE TABLE $contactHistoryTable (id INTEGER PRIMARY KEY AUTOINCREMENT, contact_id TEXT NOT NULL, action_type TEXT NOT NULL, occurred_at TEXT NOT NULL)',
           );
         }
       },
