@@ -107,8 +107,7 @@ class ContactFormNotifier extends AutoDisposeAsyncNotifier<ContactFormState> {
     }
     final trimmedName = current.name.trim();
     final nameError = trimmedName.isEmpty ? 'Nom requis' : null;
-    final circleError =
-        current.circle == null ? 'Categorie requise' : null;
+    final circleError = current.circle == null ? 'Relation requise' : null;
     if (nameError != null || circleError != null) {
       state = AsyncData(
         current.copyWith(

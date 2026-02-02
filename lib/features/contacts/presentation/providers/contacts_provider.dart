@@ -70,6 +70,38 @@ class ContactsNotifier extends AsyncNotifier<ContactsState> {
     });
   }
 
+  void updateContactInList(Contact updated) {
+    if (state.isLoading) {
+      _allContacts = _allContacts
+          .map((contact) => contact.id == updated.id ? updated : contact)
+          .toList();
+      return;
+    }
+    _allContacts = _allContacts
+        .map((contact) => contact.id == updated.id ? updated : contact)
+        .toList();
+    state = AsyncData(
+      ContactsState(
+        allContacts: _allContacts,
+        filteredContacts: _applyQuery(_allContacts, _query),
+      ),
+    );
+  }
+
+  void removeContactById(String id) {
+    if (state.isLoading) {
+      _allContacts = _allContacts.where((contact) => contact.id != id).toList();
+      return;
+    }
+    _allContacts = _allContacts.where((contact) => contact.id != id).toList();
+    state = AsyncData(
+      ContactsState(
+        allContacts: _allContacts,
+        filteredContacts: _applyQuery(_allContacts, _query),
+      ),
+    );
+  }
+
   void _emitFiltered() {
     if (state.isLoading) {
       _pendingFilter = true;

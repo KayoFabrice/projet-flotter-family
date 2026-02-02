@@ -5,7 +5,9 @@ import '../../domain/contact.dart';
 import '../../domain/contact_circle.dart';
 import '../providers/contacts_provider.dart';
 import '../widgets/contact_list_item.dart';
+import 'contact_detail_page.dart';
 import 'contact_edit_page.dart';
+import 'import_contacts_page.dart';
 
 class ContactsPage extends ConsumerStatefulWidget {
   const ContactsPage({super.key});
@@ -65,7 +67,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                     child: IconButton(
                       onPressed: () {
                         Navigator.of(context).pushNamed(
-                          ContactEditPage.routeName,
+                          ContactEditPage.addRouteName,
                         );
                       },
                       icon: const Icon(Icons.add),
@@ -116,7 +118,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                           onPressed: () {
                             ref.read(contactsProvider.notifier).refresh();
                           },
-                          child: const Text('Reessayer'),
+                          child: const Text('Réessayer'),
                         ),
                       ],
                     ),
@@ -163,6 +165,12 @@ class _ContactsList extends StatelessWidget {
             contact: contact,
             subtitle: _circleSubtitle(contact.circle),
             mutedText: mutedText,
+            onTap: () {
+              Navigator.of(context).pushNamed(
+                ContactDetailPage.routeName,
+                arguments: ContactDetailArgs(contactId: contact.id),
+              );
+            },
           ),
         ),
       );
@@ -301,7 +309,7 @@ class _EmptyContactsState extends StatelessWidget {
             const SizedBox(height: 16),
             FilledButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(ContactEditPage.routeName);
+                Navigator.of(context).pushNamed(ContactEditPage.addRouteName);
               },
               child: const Text('Ajouter un proche'),
             ),
@@ -378,7 +386,9 @@ class _SyncPromoCard extends StatelessWidget {
               backgroundColor: Colors.white,
               foregroundColor: theme.colorScheme.primary,
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).pushNamed(ImportContactsPage.routeName);
+            },
             child: const Text('Autoriser l\'acces'),
           ),
         ],

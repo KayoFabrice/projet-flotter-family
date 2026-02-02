@@ -15,6 +15,14 @@ class FakeContactsRepository implements ContactsRepository {
   final List<Contact> _contacts;
 
   @override
+  Future<Contact?> fetchContactById(String id) async {
+    return _contacts.cast<Contact?>().firstWhere(
+          (contact) => contact?.id == id,
+          orElse: () => null,
+        );
+  }
+
+  @override
   Future<List<Contact>> fetchContacts() async => List.unmodifiable(_contacts);
 
   @override
@@ -40,6 +48,20 @@ class FakeContactsRepository implements ContactsRepository {
   @override
   Future<void> createImportedContacts(List<Contact> contacts) async {
     _contacts.addAll(contacts);
+  }
+
+  @override
+  Future<void> updateContact(Contact contact) async {
+    final index = _contacts.indexWhere((item) => item.id == contact.id);
+    if (index == -1) {
+      return;
+    }
+    _contacts[index] = contact;
+  }
+
+  @override
+  Future<void> deleteContact(String id) async {
+    _contacts.removeWhere((contact) => contact.id == id);
   }
 
   @override
@@ -84,7 +106,7 @@ void main() {
         ],
         child: MaterialApp(
           routes: {
-            ContactEditPage.routeName: (_) => const ContactEditPage(),
+            ContactEditPage.addRouteName: (_) => const ContactEditPage(),
           },
           home: const ContactsPage(),
         ),
@@ -120,7 +142,7 @@ void main() {
         ],
         child: MaterialApp(
           routes: {
-            ContactEditPage.routeName: (_) => const ContactEditPage(),
+            ContactEditPage.addRouteName: (_) => const ContactEditPage(),
           },
           home: const ContactsPage(),
         ),

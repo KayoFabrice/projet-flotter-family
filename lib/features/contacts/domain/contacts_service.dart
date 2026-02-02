@@ -22,6 +22,14 @@ class ContactsService {
     return _repository.searchContacts(query);
   }
 
+  Future<Contact> loadContactById(String id) async {
+    final contact = await _repository.fetchContactById(id);
+    if (contact == null) {
+      throw StateError('Contact introuvable');
+    }
+    return contact;
+  }
+
   Future<Contact> createContact({
     required String displayName,
     required ContactCircle circle,
@@ -39,6 +47,30 @@ class ContactsService {
     );
     await _repository.createContact(contact);
     return contact;
+  }
+
+  Future<Contact> updateContact({
+    required String id,
+    required String displayName,
+    required ContactCircle circle,
+    String? phone,
+    String? email,
+  }) async {
+    final existing = await loadContactById(id);
+    final updated = Contact(
+      id: existing.id,
+      displayName: displayName,
+      circle: circle,
+      createdAt: existing.createdAt,
+      phone: phone,
+      email: email,
+    );
+    await _repository.updateContact(updated);
+    return updated;
+  }
+
+  Future<void> deleteContact(String id) {
+    return _repository.deleteContact(id);
   }
 
   Future<Contact> createOnboardingContact({

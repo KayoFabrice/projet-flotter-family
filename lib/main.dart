@@ -11,6 +11,7 @@ import 'features/contacts/presentation/pages/import_contacts_page.dart';
 import 'features/contacts/presentation/pages/onboarding_gate.dart';
 import 'features/contacts/presentation/pages/onboarding_ready_page.dart';
 import 'features/contacts/presentation/pages/welcome_page.dart';
+import 'features/contacts/presentation/pages/contact_detail_page.dart';
 import 'features/contacts/presentation/pages/contact_edit_page.dart';
 import 'features/contacts/presentation/pages/contacts_page.dart';
 import 'features/settings/presentation/pages/location_or_availability_page.dart';
@@ -94,7 +95,9 @@ class MyApp extends StatelessWidget {
             const LocationOrAvailabilityPage(),
         OnboardingReadyPage.routeName: (_) => const OnboardingReadyPage(),
         ContactsPage.routeName: (_) => const ContactsPage(),
-        ContactEditPage.routeName: (_) => const ContactEditPage(),
+        ContactEditPage.addRouteName: (_) => const ContactEditPage(),
+        ContactEditPage.editRouteName: (_) => const ContactEditPage(),
+        ContactDetailPage.routeName: (_) => const ContactDetailPage(),
         AppShell.routeName: (_) => const AppShell(),
       },
     );

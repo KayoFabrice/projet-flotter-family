@@ -8,9 +8,12 @@ abstract class ContactsRepository {
   Future<List<Contact>> fetchContacts();
   Future<List<Contact>> searchContacts(String query);
   Future<List<Contact>> fetchOnboardingContacts();
+  Future<Contact?> fetchContactById(String id);
   Future<void> createContact(Contact contact);
   Future<void> createOnboardingContact(Contact contact);
   Future<void> createImportedContacts(List<Contact> contacts);
+  Future<void> updateContact(Contact contact);
+  Future<void> deleteContact(String id);
   Future<int> countOnboardingContacts();
 }
 
@@ -58,6 +61,21 @@ class ContactsRepositoryImpl implements ContactsRepository {
   }
 
   @override
+  Future<Contact?> fetchContactById(String id) async {
+    final db = await _database.database;
+    final rows = await db.query(
+      AppDatabase.contactsTable,
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (rows.isEmpty) {
+      return null;
+    }
+    return _mapRows(rows).first;
+  }
+
+  @override
   Future<void> createContact(Contact contact) async {
     final db = await _database.database;
     await db.insert(
@@ -72,6 +90,38 @@ class ContactsRepositoryImpl implements ContactsRepository {
         'email': contact.email,
       },
     );
+  }
+
+  @override
+  Future<void> updateContact(Contact contact) async {
+    final db = await _database.database;
+    await db.update(
+      AppDatabase.contactsTable,
+      {
+        'display_name': contact.displayName,
+        'circle': contact.circle.storageValue,
+        'phone': contact.phone,
+        'email': contact.email,
+      },
+      where: 'id = ?',
+      whereArgs: [contact.id],
+    );
+  }
+
+  @override
+  Future<void> deleteContact(String id) async {
+    final db = await _database.database;
+    await db.transaction((transaction) async {
+      final deletedCount = await transaction.delete(
+        AppDatabase.contactsTable,
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      if (deletedCount == 0) {
+        throw StateError('Contact introuvable');
+      }
+      await _deleteContactReferences(transaction, contactId: id);
+    });
   }
 
   @override
@@ -142,5 +192,31 @@ class ContactsRepositoryImpl implements ContactsRepository {
           ),
         )
         .toList();
+  }
+
+  Future<void> _deleteContactReferences(
+    DatabaseExecutor database, {
+    required String contactId,
+  }) async {
+    final tables = await database.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",
+    );
+    for (final row in tables) {
+      final table = row['name'];
+      if (table is! String) {
+        continue;
+      }
+      final columns = await database.rawQuery('PRAGMA table_info($table)');
+      final hasContactId =
+          columns.any((column) => column['name'] == 'contact_id');
+      if (!hasContactId) {
+        continue;
+      }
+      await database.delete(
+        table,
+        where: 'contact_id = ?',
+        whereArgs: [contactId],
+      );
+    }
   }
 }

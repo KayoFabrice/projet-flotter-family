@@ -13,6 +13,14 @@ class FakeContactsRepository implements ContactsRepository {
   final List<Contact> _stored;
 
   @override
+  Future<Contact?> fetchContactById(String id) async {
+    return _stored.cast<Contact?>().firstWhere(
+          (contact) => contact?.id == id,
+          orElse: () => null,
+        );
+  }
+
+  @override
   Future<List<Contact>> fetchContacts() async => List.unmodifiable(_stored);
 
   @override
@@ -38,6 +46,20 @@ class FakeContactsRepository implements ContactsRepository {
   @override
   Future<void> createImportedContacts(List<Contact> contacts) async {
     _stored.addAll(contacts);
+  }
+
+  @override
+  Future<void> updateContact(Contact contact) async {
+    final index = _stored.indexWhere((item) => item.id == contact.id);
+    if (index == -1) {
+      return;
+    }
+    _stored[index] = contact;
+  }
+
+  @override
+  Future<void> deleteContact(String id) async {
+    _stored.removeWhere((contact) => contact.id == id);
   }
 
   @override
