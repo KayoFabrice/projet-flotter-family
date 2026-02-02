@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../contacts/domain/contact_cadence.dart';
-import '../../../contacts/domain/contact_circle.dart';
-import '../providers/cadence_settings_provider.dart';
+import '../providers/global_cadence_provider.dart';
 import 'cadence_settings_page.dart';
+import 'availability_settings_page.dart';
+import 'categories_settings_page.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cadenceState = ref.watch(cadenceSettingsProvider);
+    final cadenceState = ref.watch(globalCadenceProvider);
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurface.withOpacity(0.6);
 
@@ -50,15 +50,12 @@ class SettingsPage extends ConsumerWidget {
                     title: 'Cadence',
                     subtitle: 'Fréquence des rappels principaux',
                     value: cadenceState.maybeWhen(
-                      data: (cadences) {
-                        final proches = cadences.firstWhere(
-                          (cadence) => cadence.circle == ContactCircle.proches,
-                          orElse: () => const ContactCadence(
-                            circle: ContactCircle.proches,
-                            cadenceDays: 7,
-                          ),
+                      data: (cadence) {
+                        final selected = cadence.options.firstWhere(
+                          (option) => option.key == cadence.selectedKey,
+                          orElse: () => cadence.options.first,
                         );
-                        return _formatCadenceValue(proches.cadenceDays);
+                        return selected.label;
                       },
                       orElse: () => '...',
                     ),
@@ -74,12 +71,26 @@ class SettingsPage extends ConsumerWidget {
                     icon: Icons.schedule,
                     title: 'Plages horaires',
                     subtitle: 'Heures de notification preferees',
-                    value: '18h - 20h',
+                    value: 'Selection multiple',
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const AvailabilitySettingsPage(),
+                        ),
+                      );
+                    },
                   ),
                   _SettingsCard(
                     icon: Icons.category_outlined,
                     title: 'Categories',
                     subtitle: 'Famille, amis proches, autres',
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const CategoriesSettingsPage(),
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
                   _SectionLabel(title: 'Systeme', muted: muted),
@@ -102,19 +113,6 @@ class SettingsPage extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  String _formatCadenceValue(int days) {
-    switch (days) {
-      case 7:
-        return 'Hebdo';
-      case 14:
-        return 'Bi-hebdo';
-      case 30:
-        return 'Mensuel';
-      default:
-        return '${days} j';
-    }
   }
 }
 
@@ -172,11 +170,7 @@ class _ProfileCard extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: theme.dividerColor),
             ),
-            child: Icon(
-              Icons.edit,
-              size: 18,
-              color: muted,
-            ),
+            child: Icon(Icons.edit, size: 18, color: muted),
           ),
         ],
       ),
@@ -197,10 +191,10 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         title.toUpperCase(),
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: muted,
-              letterSpacing: 0.6,
-              fontWeight: FontWeight.w600,
-            ),
+          color: muted,
+          letterSpacing: 0.6,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -246,7 +240,11 @@ class _SettingsCard extends StatelessWidget {
                   color: theme.colorScheme.secondary,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, size: 18, color: theme.colorScheme.onSecondary),
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: theme.colorScheme.onSecondary,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

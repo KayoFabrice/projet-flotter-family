@@ -4,8 +4,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/availability_provider.dart';
 import '../../domain/availability_window.dart';
 
+class AvailabilityWindowsController {
+  const AvailabilityWindowsController({
+    required this.windows,
+    required this.onAddWindow,
+    required this.onUpdateWindow,
+    required this.onRemoveWindow,
+  });
+
+  final List<AvailabilityWindow> windows;
+  final void Function(AvailabilityWindow window) onAddWindow;
+  final void Function(int index, AvailabilityWindow window) onUpdateWindow;
+  final void Function(int index) onRemoveWindow;
+}
+
 class AvailabilityTimeRangeEditor extends ConsumerWidget {
-  const AvailabilityTimeRangeEditor({super.key});
+  const AvailabilityTimeRangeEditor({
+    super.key,
+    this.controller,
+    this.showSaveButton = true,
+    this.saveLabel = 'Enregistrer mes disponibilites',
+    this.onPersist,
+  });
+
+  final AvailabilityWindowsController? controller;
+  final bool showSaveButton;
+  final String saveLabel;
+  final Future<bool> Function()? onPersist;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -14,82 +39,44 @@ class AvailabilityTimeRangeEditor extends ConsumerWidget {
     final border = theme.dividerColor;
     final card = theme.cardColor;
 
+    final injectedController = controller;
+    if (injectedController != null) {
+      return _buildEditor(
+        context,
+        injectedController,
+        muted,
+        border,
+        card,
+        onPersist,
+        showSaveButton,
+        saveLabel,
+      );
+    }
+
     final availabilityState = ref.watch(availabilityProvider);
 
     return availabilityState.when(
       data: (windows) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Definir vos disponibilites',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Ajoutez des plages horaires autorisees pour les rappels.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: muted,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            if (windows.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: card,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: border),
-                ),
-                child: Text(
-                  'Aucune plage definie.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: muted,
-                      ),
-                ),
-              )
-            else
-              Column(
-                children: [
-                  for (var i = 0; i < windows.length; i++)
-                    _AvailabilityRow(
-                      window: windows[i],
-                      onEdit: () => _editWindow(context, ref, i, windows[i]),
-                      onDelete: () => ref
-                          .read(availabilityProvider.notifier)
-                          .removeWindow(i),
-                    ),
-                ],
-              ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () => _addWindow(context, ref),
-              icon: const Icon(Icons.add),
-              label: const Text('Ajouter une plage'),
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () async {
-                final success =
-                    await ref.read(availabilityProvider.notifier).persist();
-                if (!context.mounted) {
-                  return;
-                }
-                if (!success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Plages horaires invalides.'),
-                    ),
-                  );
-                  return;
-                }
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Enregistrer mes disponibilites'),
-            ),
-          ],
+        final providerController = AvailabilityWindowsController(
+          windows: windows,
+          onAddWindow: (window) =>
+              ref.read(availabilityProvider.notifier).addWindow(window),
+          onUpdateWindow: (index, window) => ref
+              .read(availabilityProvider.notifier)
+              .updateWindow(index, window),
+          onRemoveWindow: (index) =>
+              ref.read(availabilityProvider.notifier).removeWindow(index),
+        );
+
+        return _buildEditor(
+          context,
+          providerController,
+          muted,
+          border,
+          card,
+          onPersist ?? () => ref.read(availabilityProvider.notifier).persist(),
+          showSaveButton,
+          saveLabel,
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -106,17 +93,109 @@ class AvailabilityTimeRangeEditor extends ConsumerWidget {
     );
   }
 
-  Future<void> _addWindow(BuildContext context, WidgetRef ref) async {
+  Widget _buildEditor(
+    BuildContext context,
+    AvailabilityWindowsController controller,
+    Color muted,
+    Color border,
+    Color card,
+    Future<bool> Function()? onPersist,
+    bool showSaveButton,
+    String saveLabel,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Definir vos disponibilites',
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Ajoutez des plages horaires autorisees pour les rappels.',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: muted),
+        ),
+        const SizedBox(height: 16),
+        if (controller.windows.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: card,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: border),
+            ),
+            child: Text(
+              'Aucune plage definie.',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: muted),
+            ),
+          )
+        else
+          Column(
+            children: [
+              for (var i = 0; i < controller.windows.length; i++)
+                _AvailabilityRow(
+                  window: controller.windows[i],
+                  onEdit: () => _editWindow(
+                    context,
+                    controller,
+                    i,
+                    controller.windows[i],
+                  ),
+                  onDelete: () => controller.onRemoveWindow(i),
+                ),
+            ],
+          ),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: () => _addWindow(context, controller),
+          icon: const Icon(Icons.add),
+          label: const Text('Ajouter une plage'),
+        ),
+        if (showSaveButton) ...[
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: onPersist == null
+                ? null
+                : () async {
+                    final success = await onPersist();
+                    if (!context.mounted) {
+                      return;
+                    }
+                    if (!success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Plages horaires invalides.'),
+                        ),
+                      );
+                      return;
+                    }
+                    Navigator.of(context).pop(true);
+                  },
+            child: Text(saveLabel),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _addWindow(
+    BuildContext context,
+    AvailabilityWindowsController controller,
+  ) async {
     final window = await _pickWindow(context);
     if (window == null) {
       return;
     }
-    ref.read(availabilityProvider.notifier).addWindow(window);
+    controller.onAddWindow(window);
   }
 
   Future<void> _editWindow(
     BuildContext context,
-    WidgetRef ref,
+    AvailabilityWindowsController controller,
     int index,
     AvailabilityWindow current,
   ) async {
@@ -128,7 +207,7 @@ class AvailabilityTimeRangeEditor extends ConsumerWidget {
     if (window == null) {
       return;
     }
-    ref.read(availabilityProvider.notifier).updateWindow(index, window);
+    controller.onUpdateWindow(index, window);
   }
 
   Future<AvailabilityWindow?> _pickWindow(
@@ -154,9 +233,7 @@ class AvailabilityTimeRangeEditor extends ConsumerWidget {
     final endMinute = end.hour * 60 + end.minute;
     if (startMinute >= endMinute) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('La fin doit etre apres le debut.'),
-        ),
+        const SnackBar(content: Text('La fin doit etre apres le debut.')),
       );
       return null;
     }
@@ -200,10 +277,7 @@ class _AvailabilityRow extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
-          IconButton(
-            onPressed: onEdit,
-            icon: const Icon(Icons.edit_outlined),
-          ),
+          IconButton(onPressed: onEdit, icon: const Icon(Icons.edit_outlined)),
           IconButton(
             onPressed: onDelete,
             icon: const Icon(Icons.delete_outline),
