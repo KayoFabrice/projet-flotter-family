@@ -46,7 +46,22 @@ class FakeContactsRepository implements ContactsRepository {
   final List<Contact> _stored = [];
 
   @override
+  Future<List<Contact>> fetchContacts() async => List.unmodifiable(_stored);
+
+  @override
+  Future<List<Contact>> searchContacts(String query) async => _stored
+      .where(
+        (contact) => contact.displayName.toLowerCase().contains(query.toLowerCase()),
+      )
+      .toList();
+
+  @override
   Future<List<Contact>> fetchOnboardingContacts() async => List.unmodifiable(_stored);
+
+  @override
+  Future<void> createContact(Contact contact) async {
+    _stored.add(contact);
+  }
 
   @override
   Future<void> createOnboardingContact(Contact contact) async {

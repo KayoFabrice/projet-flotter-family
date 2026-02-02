@@ -9,6 +9,21 @@ class FakeContactsRepository implements ContactsRepository {
   final List<Contact> _stored = [];
 
   @override
+  Future<void> createContact(Contact contact) async {
+    _stored.add(contact);
+  }
+
+  @override
+  Future<List<Contact>> fetchContacts() async => List.unmodifiable(_stored);
+
+  @override
+  Future<List<Contact>> searchContacts(String query) async => _stored
+      .where(
+        (contact) => contact.displayName.toLowerCase().contains(query.toLowerCase()),
+      )
+      .toList();
+
+  @override
   Future<List<Contact>> fetchOnboardingContacts() async => List.unmodifiable(_stored);
 
   @override
@@ -62,5 +77,47 @@ void main() {
       ),
       throwsA(isA<OnboardingContactsLimitException>()),
     );
+  });
+
+  test('ContactsService loads contacts and supports search', () async {
+    final repository = FakeContactsRepository();
+    final service = ContactsService(repository);
+
+    await repository.createImportedContacts([
+      Contact(
+        id: '1',
+        displayName: 'Sarah',
+        circle: ContactCircle.proches,
+        createdAt: DateTime(2026, 1, 2).toUtc().toIso8601String(),
+      ),
+      Contact(
+        id: '2',
+        displayName: 'Thomas',
+        circle: ContactCircle.amis,
+        createdAt: DateTime(2026, 1, 2).toUtc().toIso8601String(),
+      ),
+    ]);
+
+    final allContacts = await service.loadContacts();
+    expect(allContacts.length, 2);
+
+    final filtered = await service.searchContacts('sar');
+    expect(filtered.length, 1);
+    expect(filtered.first.displayName, 'Sarah');
+  });
+
+  test('ContactsService creates contact with ISO UTC date', () async {
+    final repository = FakeContactsRepository();
+    final service = ContactsService(repository);
+
+    final created = await service.createContact(
+      displayName: 'Nora',
+      circle: ContactCircle.eloignes,
+    );
+
+    expect(created.displayName, 'Nora');
+    expect(created.circle, ContactCircle.eloignes);
+    final parsed = DateTime.parse(created.createdAt);
+    expect(parsed.isUtc, isTrue);
   });
 }
