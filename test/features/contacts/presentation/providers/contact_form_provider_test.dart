@@ -10,6 +10,14 @@ class FakeContactsRepository implements ContactsRepository {
   final List<Contact> stored = [];
 
   @override
+  Future<Contact?> fetchContactById(String id) async {
+    return stored.cast<Contact?>().firstWhere(
+          (contact) => contact?.id == id,
+          orElse: () => null,
+        );
+  }
+
+  @override
   Future<void> createContact(Contact contact) async {
     stored.add(contact);
   }
@@ -38,6 +46,20 @@ class FakeContactsRepository implements ContactsRepository {
             contact.displayName.toLowerCase().contains(query.toLowerCase()),
       )
       .toList();
+
+  @override
+  Future<void> updateContact(Contact contact) async {
+    final index = stored.indexWhere((item) => item.id == contact.id);
+    if (index == -1) {
+      return;
+    }
+    stored[index] = contact;
+  }
+
+  @override
+  Future<void> deleteContact(String id) async {
+    stored.removeWhere((contact) => contact.id == id);
+  }
 
   @override
   Future<int> countOnboardingContacts() async => stored.length;

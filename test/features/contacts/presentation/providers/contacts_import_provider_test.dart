@@ -34,6 +34,9 @@ class FakeContactsImportRepository implements ContactsImportRepository {
 
 class FakeContactsRepository implements ContactsRepository {
   @override
+  Future<Contact?> fetchContactById(String id) async => null;
+
+  @override
   Future<void> createContact(Contact contact) async {}
 
   @override
@@ -50,6 +53,12 @@ class FakeContactsRepository implements ContactsRepository {
 
   @override
   Future<List<Contact>> fetchOnboardingContacts() async => const [];
+
+  @override
+  Future<void> updateContact(Contact contact) async {}
+
+  @override
+  Future<void> deleteContact(String id) async {}
 
   @override
   Future<int> countOnboardingContacts() async => 0;

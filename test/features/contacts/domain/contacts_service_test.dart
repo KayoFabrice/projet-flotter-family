@@ -9,6 +9,14 @@ class FakeContactsRepository implements ContactsRepository {
   final List<Contact> _stored = [];
 
   @override
+  Future<Contact?> fetchContactById(String id) async {
+    return _stored.cast<Contact?>().firstWhere(
+          (contact) => contact?.id == id,
+          orElse: () => null,
+        );
+  }
+
+  @override
   Future<void> createContact(Contact contact) async {
     _stored.add(contact);
   }
@@ -34,6 +42,20 @@ class FakeContactsRepository implements ContactsRepository {
   @override
   Future<void> createImportedContacts(List<Contact> contacts) async {
     _stored.addAll(contacts);
+  }
+
+  @override
+  Future<void> updateContact(Contact contact) async {
+    final index = _stored.indexWhere((item) => item.id == contact.id);
+    if (index == -1) {
+      return;
+    }
+    _stored[index] = contact;
+  }
+
+  @override
+  Future<void> deleteContact(String id) async {
+    _stored.removeWhere((contact) => contact.id == id);
   }
 
   @override
@@ -119,5 +141,49 @@ void main() {
     expect(created.circle, ContactCircle.eloignes);
     final parsed = DateTime.parse(created.createdAt);
     expect(parsed.isUtc, isTrue);
+  });
+
+  test('ContactsService updates contact details', () async {
+    final repository = FakeContactsRepository();
+    final service = ContactsService(repository);
+
+    final created = await service.createContact(
+      displayName: 'Nora',
+      circle: ContactCircle.eloignes,
+      phone: '0600000000',
+    );
+
+    final updated = await service.updateContact(
+      id: created.id,
+      displayName: 'Nora M',
+      circle: ContactCircle.proches,
+      phone: '+33 6 11 22 33 44',
+      email: 'nora@test.com',
+    );
+
+    expect(updated.id, created.id);
+    expect(updated.displayName, 'Nora M');
+    expect(updated.circle, ContactCircle.proches);
+    expect(updated.phone, '+33 6 11 22 33 44');
+    expect(updated.email, 'nora@test.com');
+
+    final stored = await repository.fetchContactById(created.id);
+    expect(stored, isNotNull);
+    expect(stored!.displayName, 'Nora M');
+  });
+
+  test('ContactsService deletes contact by id', () async {
+    final repository = FakeContactsRepository();
+    final service = ContactsService(repository);
+
+    final created = await service.createContact(
+      displayName: 'Nora',
+      circle: ContactCircle.eloignes,
+    );
+
+    await service.deleteContact(created.id);
+
+    final stored = await repository.fetchContactById(created.id);
+    expect(stored, isNull);
   });
 }

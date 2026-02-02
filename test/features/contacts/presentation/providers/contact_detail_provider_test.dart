@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:projet_flutter_famille/features/contacts/data/contacts_repository.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_circle.dart';
+import 'package:projet_flutter_famille/features/contacts/presentation/providers/contact_detail_provider.dart';
+import 'package:projet_flutter_famille/features/contacts/presentation/providers/contacts_provider.dart';
 import 'package:projet_flutter_famille/features/contacts/presentation/providers/onboarding_contacts_provider.dart';
 
 class FakeContactsRepository implements ContactsRepository {
@@ -66,76 +68,73 @@ class FakeContactsRepository implements ContactsRepository {
 }
 
 void main() {
-  test('OnboardingContactsProvider loads empty and adds a contact', () async {
-    final fakeRepository = FakeContactsRepository();
-    final container = ProviderContainer(
-      overrides: [
-        contactsRepositoryProvider.overrideWithValue(fakeRepository),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    expect(container.read(onboardingContactsProvider), isA<AsyncLoading>());
-
-    final initial = await container.read(onboardingContactsProvider.future);
-    expect(initial, isEmpty);
-
-    final added = await container.read(onboardingContactsProvider.notifier).addContact(
-          displayName: 'Alex',
-          circle: ContactCircle.amis,
-        );
-
-    expect(added, isTrue);
-    final updated = container.read(onboardingContactsProvider).value ?? [];
-    expect(updated.length, 1);
-    expect(updated.first.displayName, 'Alex');
-    expect(updated.first.circle, ContactCircle.amis);
-    expect(updated.first.createdAt, isNotEmpty);
-    final createdAt = DateTime.parse(updated.first.createdAt);
-    expect(createdAt.isUtc, isTrue);
-  });
-
-  test('OnboardingContactsProvider refuses when max contacts reached', () async {
-    final now = DateTime(2026, 1, 1).toUtc();
-    final fakeRepository = FakeContactsRepository(
+  test('ContactDetailProvider updates contact', () async {
+    final now = DateTime(2026, 1, 10).toUtc().toIso8601String();
+    final repository = FakeContactsRepository(
       initial: [
         Contact(
           id: '1',
-          displayName: 'A',
+          displayName: 'Alex',
           circle: ContactCircle.proches,
-          createdAt: now.toIso8601String(),
-        ),
-        Contact(
-          id: '2',
-          displayName: 'B',
-          circle: ContactCircle.amis,
-          createdAt: now.toIso8601String(),
-        ),
-        Contact(
-          id: '3',
-          displayName: 'C',
-          circle: ContactCircle.eloignes,
-          createdAt: now.toIso8601String(),
+          createdAt: now,
         ),
       ],
     );
+
     final container = ProviderContainer(
       overrides: [
-        contactsRepositoryProvider.overrideWithValue(fakeRepository),
+        contactsRepositoryProvider.overrideWithValue(repository),
       ],
     );
     addTearDown(container.dispose);
 
-    final initial = await container.read(onboardingContactsProvider.future);
-    expect(initial.length, 3);
+    await container.read(contactDetailProvider('1').future);
 
-    final added = await container.read(onboardingContactsProvider.notifier).addContact(
-          displayName: 'D',
-          circle: ContactCircle.proches,
+    final updated = await container
+        .read(contactDetailProvider('1').notifier)
+        .updateContact(
+          displayName: 'Alexandre',
+          circle: ContactCircle.amis,
         );
 
-    expect(added, isFalse);
-    final updated = container.read(onboardingContactsProvider).value ?? [];
-    expect(updated.length, 3);
+    expect(updated, isTrue);
+    final state = container.read(contactDetailProvider('1')).value;
+    expect(state, isNotNull);
+    expect(state!.contact.displayName, 'Alexandre');
+    expect(state.contact.circle, ContactCircle.amis);
+  });
+
+  test('ContactDetailProvider deletion refreshes contacts list', () async {
+    final now = DateTime(2026, 1, 10).toUtc().toIso8601String();
+    final repository = FakeContactsRepository(
+      initial: [
+        Contact(
+          id: '1',
+          displayName: 'Alex',
+          circle: ContactCircle.proches,
+          createdAt: now,
+        ),
+      ],
+    );
+
+    final container = ProviderContainer(
+      overrides: [
+        contactsRepositoryProvider.overrideWithValue(repository),
+        contactsDebounceDurationProvider.overrideWithValue(Duration.zero),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final initial = await container.read(contactsProvider.future);
+    expect(initial.allContacts.length, 1);
+
+    await container.read(contactDetailProvider('1').future);
+    final deleted =
+        await container.read(contactDetailProvider('1').notifier).deleteContact();
+    expect(deleted, isTrue);
+
+    final refreshed = container.read(contactsProvider).value;
+    expect(refreshed, isNotNull);
+    expect(refreshed!.allContacts, isEmpty);
   });
 }
