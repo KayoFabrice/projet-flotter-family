@@ -9,11 +9,11 @@ import '../../../contacts/data/contacts_repository.dart';
 import '../../../settings/data/availability_repository.dart';
 import '../../../settings/data/key_location_repository.dart';
 import '../../../settings/data/settings_flags_repository.dart';
-import '../../data/message_catalog_repository.dart';
-import '../../data/reminders_repository.dart';
-import '../../data/rest_window_repository.dart';
-import '../../domain/reminder_suggestion_service.dart';
-import '../../domain/suggestion_selector.dart';
+import '../../../reminders/data/message_catalog_repository.dart';
+import '../../../reminders/data/reminders_repository.dart';
+import '../../../reminders/data/rest_window_repository.dart';
+import '../../../reminders/domain/reminder_suggestion_service.dart';
+import '../../../reminders/domain/suggestion_selector.dart';
 
 class SuggestionContext {
   const SuggestionContext({

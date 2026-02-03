@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/contacts/presentation/pages/contacts_page.dart';
-import '../../features/reminders/presentation/providers/suggestion_provider.dart';
+import '../../features/agenda/presentation/providers/suggestion_provider.dart';
+import '../../features/agenda/presentation/widgets/agenda_section.dart';
+import '../../features/agenda/presentation/widgets/suggestion_card.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 
 class AppShell extends StatefulWidget {
@@ -105,17 +107,55 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
     final decision = ref.watch(suggestionDecisionProvider(_context));
 
     return SafeArea(
-      child: Center(
-        child: decision.when(
-          data: (result) => Text(
-            result.hasSuggestion
-                ? 'Suggestion: ${result.message ?? result.contact?.displayName ?? ''}'
-                : 'Aucune suggestion',
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          decision.when(
+            data: (result) => result.hasSuggestion
+                ? SuggestionCard(
+                    decision: result,
+                    onWrite: _handleWrite,
+                    onCall: _handleCall,
+                    onLater: _handleLater,
+                  )
+                : const SizedBox.shrink(),
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
           ),
-          loading: () => const Text('Chargement...'),
-          error: (_, __) => const Text('Erreur de suggestion'),
-        ),
+          if (decision.maybeWhen(
+            data: (result) => result.hasSuggestion,
+            orElse: () => false,
+          ))
+            const SizedBox(height: 16),
+          const AgendaSection(
+            title: "Aujourd'hui",
+            subtitle: 'Aucune action planifiee pour le moment.',
+          ),
+          const SizedBox(height: 12),
+          const AgendaSection(
+            title: 'Cette semaine',
+            subtitle: 'Aucune action planifiee pour le moment.',
+          ),
+          const SizedBox(height: 12),
+          const AgendaSection(
+            title: 'Ce mois',
+            subtitle: 'Aucune action planifiee pour le moment.',
+          ),
+        ],
       ),
+    );
+  }
+
+  void _handleWrite() => _showActionFeedback('Ecrire');
+  void _handleCall() => _showActionFeedback('Appeler');
+  void _handleLater() => _showActionFeedback('Plus tard');
+
+  void _showActionFeedback(String label) {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$label bientot disponible.')),
     );
   }
 }
