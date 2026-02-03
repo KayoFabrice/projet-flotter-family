@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact.dart';
+import 'package:projet_flutter_famille/features/contacts/domain/contact_action_types.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_circle.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_history_entry.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_suggestion_service.dart';
@@ -137,5 +138,37 @@ void main() {
     expect(suggestion, isNotNull);
     expect(suggestion!.contact.id, '1');
     expect(suggestion.nextSuggestedAt, baseDate.add(const Duration(days: 7)));
+  });
+
+  test('ContactSuggestionService ignore les tentatives pour la cadence', () {
+    final service = ContactSuggestionService();
+    final contact = Contact(
+      id: '1',
+      displayName: 'Maman',
+      circle: ContactCircle.proches,
+      createdAt: DateTime(2026, 1, 1).toUtc().toIso8601String(),
+    );
+    final history = [
+      ContactHistoryEntry(
+        id: 1,
+        contactId: '1',
+        actionType: ContactActionTypes.writeAttempt,
+        occurredAt: DateTime(2026, 1, 10).toUtc().toIso8601String(),
+      ),
+      ContactHistoryEntry(
+        id: 2,
+        contactId: '1',
+        actionType: 'message',
+        occurredAt: DateTime(2026, 1, 5).toUtc().toIso8601String(),
+      ),
+    ];
+
+    final next = service.computeNextSuggestedAt(
+      contact: contact,
+      cadenceDays: 7,
+      history: history,
+    );
+
+    expect(next, DateTime(2026, 1, 12).toUtc());
   });
 }
