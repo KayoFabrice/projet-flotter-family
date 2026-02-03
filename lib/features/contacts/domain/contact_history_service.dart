@@ -45,4 +45,26 @@ class ContactHistoryService {
       occurredAtUtc: occurredAtUtc,
     );
   }
+
+  Future<void> recordCallAttempt({
+    required String contactId,
+    DateTime? occurredAtUtc,
+  }) {
+    return recordAction(
+      contactId: contactId,
+      actionType: ContactActionTypes.callAttempt,
+      occurredAtUtc: occurredAtUtc,
+    );
+  }
+
+  Future<void> recordCallSuccess({
+    required String contactId,
+    DateTime? occurredAtUtc,
+  }) {
+    return recordAction(
+      contactId: contactId,
+      actionType: ContactActionTypes.callSuccess,
+      occurredAtUtc: occurredAtUtc,
+    );
+  }
 }

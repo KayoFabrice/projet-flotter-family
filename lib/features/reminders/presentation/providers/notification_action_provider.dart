@@ -6,5 +6,6 @@ import '../../domain/notification_action_handler.dart';
 final notificationActionHandlerProvider = Provider<NotificationActionHandler>((ref) {
   return NotificationActionHandler(
     writeService: ref.read(contactWriteActionServiceProvider),
+    callService: ref.read(contactCallActionServiceProvider),
   );
 });

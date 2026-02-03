@@ -64,4 +64,40 @@ void main() {
     expect(entry['actionType'], ContactActionTypes.writeSuccess);
     expect(entry['occurredAt'], now.toUtc().toIso8601String());
   });
+
+  test('ContactHistoryService enregistre une tentative d appel avec ISO UTC',
+      () async {
+    final now = DateTime(2025, 3, 4, 5, 6, 7);
+    final repo = _FakeHistoryRepository();
+    final service = ContactHistoryService(
+      repository: repo,
+      nowUtc: () => now,
+    );
+
+    await service.recordCallAttempt(contactId: 'c3');
+
+    expect(repo.entries, hasLength(1));
+    final entry = repo.entries.single;
+    expect(entry['contactId'], 'c3');
+    expect(entry['actionType'], ContactActionTypes.callAttempt);
+    expect(entry['occurredAt'], now.toUtc().toIso8601String());
+  });
+
+  test('ContactHistoryService enregistre un succes d appel avec ISO UTC',
+      () async {
+    final now = DateTime(2025, 4, 5, 6, 7, 8);
+    final repo = _FakeHistoryRepository();
+    final service = ContactHistoryService(
+      repository: repo,
+      nowUtc: () => now,
+    );
+
+    await service.recordCallSuccess(contactId: 'c4');
+
+    expect(repo.entries, hasLength(1));
+    final entry = repo.entries.single;
+    expect(entry['contactId'], 'c4');
+    expect(entry['actionType'], ContactActionTypes.callSuccess);
+    expect(entry['occurredAt'], now.toUtc().toIso8601String());
+  });
 }

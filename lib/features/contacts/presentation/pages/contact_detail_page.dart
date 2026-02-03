@@ -302,6 +302,7 @@ class _ContactDetailBody extends StatelessWidget {
   _HistoryItem _mapHistoryEntry(ContactHistoryEntry entry) {
     switch (entry.actionType) {
       case 'call':
+      case 'call_success':
         return _HistoryItem(
           title: 'Appel sortant',
           dateLabel: _formatHistoryDate(entry.occurredAt),
