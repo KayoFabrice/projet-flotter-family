@@ -67,7 +67,7 @@ development_status:
   epic-3-retrospective: optional
   epic-4: backlog
   4-1-afficher-une-suggestion-claire-dans-l-agenda: done
-  4-2-lancer-ecrire-depuis-une-notification-ou-une-carte: ready-for-dev
+  4-2-lancer-ecrire-depuis-une-notification-ou-une-carte: review
   4-3-lancer-appeler-depuis-une-notification-ou-une-carte: ready-for-dev
   4-4-gerer-pas-le-bon-moment-et-plus-tard: ready-for-dev
   4-5-voir-le-detail-d-un-proche-avec-metriques-et-historique: ready-for-dev
