@@ -1,15 +1,30 @@
 import '../../settings/domain/availability_window.dart';
+import 'cooldown_rule.dart';
 import 'eligibility_result.dart';
 import 'rest_window.dart';
 
 class ReminderRules {
+  ReminderRules({CooldownRule? cooldownRule})
+      : _cooldownRule = cooldownRule ?? const CooldownRule();
+
+  final CooldownRule _cooldownRule;
+
   EligibilityResult evaluateEligibility({
     required String? currentLocationLabel,
     required List<String> keyLocations,
     required int currentMinuteOfDay,
     required List<AvailabilityWindow> windows,
     List<RestWindow> restWindows = const [],
+    DateTime? nowUtc,
+    String? cooldownUntil,
   }) {
+    final now = (nowUtc ?? DateTime.now()).toUtc();
+    if (_cooldownRule.isInCooldown(
+      nowUtc: now,
+      cooldownUntilIso: cooldownUntil,
+    )) {
+      return EligibilityResult.cooldown;
+    }
     if (_isWithinRestWindows(currentMinuteOfDay, restWindows)) {
       return EligibilityResult.restWindow;
     }

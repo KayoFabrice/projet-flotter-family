@@ -8,6 +8,7 @@ class Contact {
     required this.createdAt,
     this.phone,
     this.email,
+    this.cooldownUntil,
   });
 
   final String id;
@@ -16,4 +17,5 @@ class Contact {
   final String createdAt;
   final String? phone;
   final String? email;
+  final String? cooldownUntil;
 }
