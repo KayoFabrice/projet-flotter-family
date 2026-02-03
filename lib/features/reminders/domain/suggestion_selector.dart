@@ -1,5 +1,6 @@
 import '../../contacts/domain/contact.dart';
 import '../../contacts/domain/contact_circle.dart';
+import '../../contacts/domain/contact_action_types.dart';
 import '../../contacts/domain/contact_history_entry.dart';
 import 'eligibility_result.dart';
 
@@ -129,6 +130,9 @@ class SuggestionSelector {
   ) {
     DateTime? latest;
     for (final entry in history) {
+      if (ContactActionTypes.isAttempt(entry.actionType)) {
+        continue;
+      }
       final parsed = DateTime.tryParse(entry.occurredAt);
       if (parsed == null || parsed.isAfter(now)) {
         continue;

@@ -152,6 +152,15 @@ class _FakeHistoryRepository implements ContactHistoryRepository {
   }) async {
     return const [];
   }
+
+  @override
+  Future<int> addHistoryEntry({
+    required String contactId,
+    required String actionType,
+    required String occurredAt,
+  }) async {
+    return 1;
+  }
 }
 
 class _FakeRemindersRepository implements RemindersRepository {

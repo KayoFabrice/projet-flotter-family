@@ -6,6 +6,12 @@ abstract class ContactHistoryRepository {
     String contactId, {
     int limit = 5,
   });
+
+  Future<int> addHistoryEntry({
+    required String contactId,
+    required String actionType,
+    required String occurredAt,
+  });
 }
 
 class ContactHistoryRepositoryImpl implements ContactHistoryRepository {
@@ -36,5 +42,22 @@ class ContactHistoryRepositoryImpl implements ContactHistoryRepository {
           ),
         )
         .toList();
+  }
+
+  @override
+  Future<int> addHistoryEntry({
+    required String contactId,
+    required String actionType,
+    required String occurredAt,
+  }) async {
+    final db = await _database.database;
+    return db.insert(
+      AppDatabase.contactHistoryTable,
+      {
+        'contact_id': contactId,
+        'action_type': actionType,
+        'occurred_at': occurredAt,
+      },
+    );
   }
 }

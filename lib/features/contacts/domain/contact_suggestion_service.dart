@@ -1,4 +1,5 @@
 import 'contact.dart';
+import 'contact_action_types.dart';
 import 'contact_circle.dart';
 import 'contact_history_entry.dart';
 
@@ -73,6 +74,9 @@ class ContactSuggestionService {
   ) {
     DateTime? latest;
     for (final entry in history) {
+      if (ContactActionTypes.isAttempt(entry.actionType)) {
+        continue;
+      }
       final parsed = DateTime.tryParse(entry.occurredAt);
       if (parsed == null) {
         continue;

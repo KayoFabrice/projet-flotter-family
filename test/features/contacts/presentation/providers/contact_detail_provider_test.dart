@@ -104,6 +104,15 @@ class FakeContactHistoryRepository implements ContactHistoryRepository {
   }) async {
     return List.unmodifiable(_stored[contactId] ?? const []);
   }
+
+  @override
+  Future<int> addHistoryEntry({
+    required String contactId,
+    required String actionType,
+    required String occurredAt,
+  }) async {
+    return 1;
+  }
 }
 
 void main() {
