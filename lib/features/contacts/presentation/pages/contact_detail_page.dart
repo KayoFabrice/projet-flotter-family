@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../domain/contact.dart';
+import '../../domain/contact_action_types.dart';
 import '../../domain/contact_circle.dart';
+import '../../domain/contact_call_action_service.dart';
 import '../../domain/contact_history_entry.dart';
+import '../../domain/contact_write_action_service.dart';
+import '../providers/contact_action_provider.dart';
 import '../providers/contact_detail_provider.dart';
 import '../widgets/circle_selector_sheet.dart';
 import 'contact_edit_page.dart';
@@ -81,6 +84,8 @@ class ContactDetailPage extends ConsumerWidget {
                 ),
               );
             },
+            onWrite: () => _handleWrite(context, ref, state.contact),
+            onCall: () => _handleCall(context, ref, state.contact),
           ),
           loading: () => const Center(
             child: CircularProgressIndicator(),
@@ -104,6 +109,128 @@ class ContactDetailPage extends ConsumerWidget {
       ),
     );
   }
+
+  Future<void> _handleWrite(
+    BuildContext context,
+    WidgetRef ref,
+    Contact contact,
+  ) async {
+    final service = ref.read(contactWriteActionServiceProvider);
+    final options = service.buildWriteOptions(contact);
+    if (options.isEmpty) {
+      _showSnackBar(context, 'Ajoutez un numéro ou un email pour écrire.');
+      return;
+    }
+    if (options.length == 1) {
+      await _launchWriteOption(context, service, ref, contact.id, options.first);
+      return;
+    }
+    if (!context.mounted) {
+      return;
+    }
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: ListView.separated(
+            shrinkWrap: true,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+            itemBuilder: (context, index) {
+              final option = options[index];
+              return ListTile(
+                title: Text(option.label),
+                subtitle: Text(option.uri.toString()),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await _launchWriteOption(
+                    context,
+                    service,
+                    ref,
+                    contact.id,
+                    option,
+                  );
+                },
+              );
+            },
+            separatorBuilder: (_, __) => const Divider(height: 1),
+            itemCount: options.length,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _launchWriteOption(
+    BuildContext context,
+    ContactWriteActionService service,
+    WidgetRef ref,
+    String contactId,
+    ContactWriteOption option,
+  ) async {
+    final result = await service.launchWrite(
+      contactId: contactId,
+      uri: option.uri,
+    );
+    if (!context.mounted) {
+      return;
+    }
+    switch (result) {
+      case ContactWriteOutcome.success:
+        ref.invalidate(contactDetailProvider(contactId));
+        _showSnackBar(context, 'Ecriture lancee.');
+        break;
+      case ContactWriteOutcome.unavailable:
+        _showSnackBar(context, 'Action indisponible sur cet appareil.');
+        break;
+      case ContactWriteOutcome.failed:
+        _showSnackBar(context, 'Impossible d\'ouvrir l\'application.');
+        break;
+    }
+  }
+
+  Future<void> _handleCall(
+    BuildContext context,
+    WidgetRef ref,
+    Contact contact,
+  ) async {
+    final phone = contact.phone?.trim();
+    if (phone == null || phone.isEmpty) {
+      final history = ref.read(contactHistoryServiceProvider);
+      await history.recordCallAttempt(contactId: contact.id);
+      _showSnackBar(context, 'Ajoutez un numero pour appeler.');
+      return;
+    }
+    final service = ref.read(contactCallActionServiceProvider);
+    final result = await service.launchCall(
+      contactId: contact.id,
+      uri: Uri(scheme: 'tel', path: phone),
+    );
+    if (!context.mounted) {
+      return;
+    }
+    switch (result) {
+      case ContactCallOutcome.success:
+        ref.invalidate(contactDetailProvider(contact.id));
+        _showSnackBar(context, 'Appel lance.');
+        break;
+      case ContactCallOutcome.unavailable:
+        _showSnackBar(context, 'Action indisponible sur cet appareil.');
+        break;
+      case ContactCallOutcome.failed:
+        _showSnackBar(context, 'Impossible d\'ouvrir l\'application.');
+        break;
+    }
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 }
 
 class _ContactDetailBody extends StatelessWidget {
@@ -115,6 +242,8 @@ class _ContactDetailBody extends StatelessWidget {
     required this.isUpdating,
     required this.onEdit,
     required this.onChangeCategory,
+    required this.onWrite,
+    required this.onCall,
   });
 
   final Contact contact;
@@ -124,6 +253,8 @@ class _ContactDetailBody extends StatelessWidget {
   final bool isUpdating;
   final VoidCallback onEdit;
   final VoidCallback onChangeCategory;
+  final VoidCallback onWrite;
+  final VoidCallback onCall;
 
   @override
   Widget build(BuildContext context) {
@@ -148,13 +279,8 @@ class _ContactDetailBody extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         _ActionsGrid(
-          onWrite: () => _showWriteOptions(context),
-          onCall: contact.phone == null
-              ? null
-              : () => _launchUri(
-                    context,
-                    Uri(scheme: 'tel', path: contact.phone),
-                  ),
+          onWrite: onWrite,
+          onCall: contact.phone?.trim().isNotEmpty == true ? onCall : null,
         ),
         const SizedBox(height: 28),
         _StatsCard(
@@ -181,65 +307,6 @@ class _ContactDetailBody extends StatelessWidget {
     final second = parts.length > 1 && parts[1].isNotEmpty ? parts[1][0] : '';
     final combined = (first + second).toUpperCase();
     return combined.isEmpty ? '?' : combined;
-  }
-
-  void _showWriteOptions(BuildContext context) {
-    final options = <_LaunchOption>[];
-    final phone = contact.phone?.trim();
-    final email = contact.email?.trim();
-    if (phone != null && phone.isNotEmpty) {
-      options.add(
-        _LaunchOption(
-          label: 'Écrire par SMS',
-          uri: Uri(scheme: 'sms', path: phone),
-        ),
-      );
-    }
-    if (email != null && email.isNotEmpty) {
-      options.add(
-        _LaunchOption(
-          label: 'Écrire par email',
-          uri: Uri(scheme: 'mailto', path: email),
-        ),
-      );
-    }
-    if (options.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ajoutez un numéro ou un email pour écrire.'),
-        ),
-      );
-      return;
-    }
-    if (options.length == 1) {
-      _launchUri(context, options.first.uri);
-      return;
-    }
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) {
-        return SafeArea(
-          child: ListView.separated(
-            shrinkWrap: true,
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-            itemBuilder: (context, index) {
-              final option = options[index];
-              return ListTile(
-                title: Text(option.label),
-                subtitle: Text(option.uri.toString()),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _launchUri(context, option.uri);
-                },
-              );
-            },
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemCount: options.length,
-          ),
-        );
-      },
-    );
   }
 
   String _formatCadenceDays(int cadenceDays) {
@@ -320,6 +387,18 @@ class _ContactDetailBody extends StatelessWidget {
           dateLabel: _formatHistoryDate(entry.occurredAt),
           icon: Icons.calendar_today,
         );
+      case ContactActionTypes.reminderSnooze:
+        return _HistoryItem(
+          title: 'Rappel reporté',
+          dateLabel: _formatHistoryDate(entry.occurredAt),
+          icon: Icons.schedule,
+        );
+      case ContactActionTypes.reminderDismiss:
+        return _HistoryItem(
+          title: 'Rappel ignoré',
+          dateLabel: _formatHistoryDate(entry.occurredAt),
+          icon: Icons.notifications_off,
+        );
       default:
         return _HistoryItem(
           title: 'Action',
@@ -353,30 +432,6 @@ class _ContactDetailBody extends StatelessWidget {
     return '${parsed.day} $monthLabel';
   }
 
-  Future<void> _launchUri(BuildContext context, Uri uri) async {
-    final canLaunch = await canLaunchUrl(uri);
-    if (!canLaunch) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Action indisponible sur cet appareil.'),
-          ),
-        );
-      }
-      return;
-    }
-    final success = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
-    if (!success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Impossible d\'ouvrir l\'application.'),
-        ),
-      );
-    }
-  }
 }
 
 class _HeaderRow extends StatelessWidget {
@@ -861,11 +916,4 @@ class _HistoryItem {
   final String title;
   final String dateLabel;
   final IconData icon;
-}
-
-class _LaunchOption {
-  const _LaunchOption({required this.label, required this.uri});
-
-  final String label;
-  final Uri uri;
 }

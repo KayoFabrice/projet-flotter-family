@@ -9,12 +9,14 @@ class SuggestionCard extends StatelessWidget {
     this.onWrite,
     this.onCall,
     this.onLater,
+    this.onNotNow,
   });
 
   final SuggestionDecision decision;
   final VoidCallback? onWrite;
   final VoidCallback? onCall;
   final VoidCallback? onLater;
+  final VoidCallback? onNotNow;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +71,10 @@ class SuggestionCard extends StatelessWidget {
                 TextButton(
                   onPressed: onLater,
                   child: const Text('Plus tard'),
+                ),
+                TextButton(
+                  onPressed: onNotNow,
+                  child: const Text('Pas le bon moment'),
                 ),
               ],
             ),
