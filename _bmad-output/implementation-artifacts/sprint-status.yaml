@@ -61,8 +61,8 @@ development_status:
   epic-3: backlog
   3-1-evaluer-l-eligibilite-d-un-rappel-lieu-plage-horaire: done
   3-2-bloquer-les-rappels-pendant-les-periodes-de-repos: done
-  3-3-appliquer-un-cooldown-apres-rappel-ignore-ou-reporte: ready-for-dev
-  3-4-selectionner-le-meilleur-proche-a-suggerer: ready-for-dev
+  3-3-appliquer-un-cooldown-apres-rappel-ignore-ou-reporte: done
+  3-4-selectionner-le-meilleur-proche-a-suggerer: done
   3-5-utiliser-un-catalogue-de-messages-chaleureux-et-approuves: ready-for-dev
   epic-3-retrospective: optional
   epic-4: backlog
