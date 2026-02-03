@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -61,16 +63,41 @@ class _AgendaPage extends ConsumerStatefulWidget {
 }
 
 class _AgendaPageState extends ConsumerState<_AgendaPage> {
-  late final SuggestionContext _context;
+  late SuggestionContext _context;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
+    _refreshContext();
+    _scheduleNextRefresh();
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  void _refreshContext() {
     final now = DateTime.now();
     _context = SuggestionContext(
       currentMinuteOfDay: now.hour * 60 + now.minute,
       nowUtc: now.toUtc(),
+      nowLocal: now,
     );
+  }
+
+  void _scheduleNextRefresh() {
+    final now = DateTime.now();
+    final secondsUntilNextMinute = 60 - now.second;
+    _refreshTimer = Timer(Duration(seconds: secondsUntilNextMinute), () {
+      if (!mounted) {
+        return;
+      }
+      setState(_refreshContext);
+      _scheduleNextRefresh();
+    });
   }
 
   @override
@@ -82,7 +109,7 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
         child: decision.when(
           data: (result) => Text(
             result.hasSuggestion
-                ? 'Suggestion: ${result.contact?.displayName ?? ''}'
+                ? 'Suggestion: ${result.message ?? result.contact?.displayName ?? ''}'
                 : 'Aucune suggestion',
           ),
           loading: () => const Text('Chargement...'),
