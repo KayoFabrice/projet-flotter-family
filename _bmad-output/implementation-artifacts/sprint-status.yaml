@@ -69,7 +69,7 @@ development_status:
   4-1-afficher-une-suggestion-claire-dans-l-agenda: done
   4-2-lancer-ecrire-depuis-une-notification-ou-une-carte: done
   4-3-lancer-appeler-depuis-une-notification-ou-une-carte: done
-  4-4-gerer-pas-le-bon-moment-et-plus-tard: ready-for-dev
+  4-4-gerer-pas-le-bon-moment-et-plus-tard: done
   4-5-voir-le-detail-d-un-proche-avec-metriques-et-historique: ready-for-dev
   4-6-mettre-a-jour-l-historique-de-facon-fiable-apres-action: ready-for-dev
   4-7-se-comporter-correctement-en-mode-hors-ligne: ready-for-dev

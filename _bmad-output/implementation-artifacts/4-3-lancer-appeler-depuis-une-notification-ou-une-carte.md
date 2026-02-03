@@ -39,24 +39,33 @@ so that je contacte rapidement un proche important.
 - Historique affiche l'appel sortant pour les entrees call_success.
 - Parser de payload notification ajoute pour gerer Appeler via route arguments.
 - Test unitaire ajoute pour handleCallAction.
+- Revue code (2026-02-03): tentatives Appeler tracees meme sans numero, validation tel: pour notification, actions fiche contact via services + historique.
 
 ### Tests
 - `flutter test`
 
 ## File List
+- _bmad-output/implementation-artifacts/sprint-status.yaml
 - lib/core/navigation/app_shell.dart
 - lib/features/contacts/domain/contact_action_types.dart
 - lib/features/contacts/domain/contact_call_action_service.dart
 - lib/features/contacts/domain/contact_history_service.dart
 - lib/features/contacts/presentation/pages/contact_detail_page.dart
 - lib/features/contacts/presentation/providers/contact_action_provider.dart
+- lib/features/agenda/presentation/widgets/suggestion_card.dart
+- lib/features/reminders/domain/reminder_deferral_service.dart
 - lib/features/reminders/domain/notification_action_handler.dart
 - lib/features/reminders/domain/notification_action_payload.dart
 - lib/features/reminders/presentation/providers/notification_action_provider.dart
+- lib/features/reminders/presentation/providers/reminder_action_provider.dart
 - test/features/contacts/domain/contact_history_service_test.dart
+- test/features/agenda/presentation/agenda_suggestion_test.dart
 - test/features/reminders/domain/notification_action_handler_test.dart
-- ios/Runner.xcworkspace/xcuserdata/fabricekayo.xcuserdatad/UserInterfaceState.xcuserstate
+- test/features/reminders/domain/notification_action_payload_test.dart
+- test/features/reminders/domain/reminder_deferral_service_test.dart
 
 ## Change Log
 - 2026-02-03: Ajout action Appeler (UI + notification), historisation, tests.
 - 2026-02-03: Revue code - parser notification Appeler + test handler.
+- 2026-02-03: Fix review - tentative Appeler sans numero, validation tel:, fiche contact via services, tests parser.
+- 2026-02-03: Fix review - rafraichissement fiche contact apres action + CTA Appeler desactive si numero vide.
