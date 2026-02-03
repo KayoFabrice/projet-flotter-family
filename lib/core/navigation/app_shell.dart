@@ -10,6 +10,8 @@ import '../../features/contacts/presentation/providers/contact_action_provider.d
 import '../../features/agenda/presentation/providers/suggestion_provider.dart';
 import '../../features/agenda/presentation/widgets/agenda_section.dart';
 import '../../features/agenda/presentation/widgets/suggestion_card.dart';
+import '../../features/reminders/domain/notification_action_payload.dart';
+import '../../features/reminders/presentation/providers/notification_action_provider.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 
 class AppShell extends StatefulWidget {
@@ -70,6 +72,7 @@ class _AgendaPage extends ConsumerStatefulWidget {
 class _AgendaPageState extends ConsumerState<_AgendaPage> {
   late SuggestionContext _context;
   Timer? _refreshTimer;
+  bool _handledNotificationAction = false;
 
   @override
   void initState() {
@@ -82,6 +85,12 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
   void dispose() {
     _refreshTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _handleNotificationActionIfNeeded();
   }
 
   void _refreshContext() {
@@ -149,6 +158,42 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
     );
   }
 
+  void _handleNotificationActionIfNeeded() {
+    if (_handledNotificationAction) {
+      return;
+    }
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is NotificationWriteActionPayload) {
+      _handledNotificationAction = true;
+      _handleWriteFromNotification(args);
+    }
+  }
+
+  Future<void> _handleWriteFromNotification(
+    NotificationWriteActionPayload payload,
+  ) async {
+    final handler = ref.read(notificationActionHandlerProvider);
+    final result = await handler.handleWriteAction(
+      contactId: payload.contactId,
+      uri: payload.uri,
+    );
+    if (!mounted) {
+      return;
+    }
+    switch (result) {
+      case ContactWriteOutcome.success:
+        ref.invalidate(suggestionDecisionProvider(_context));
+        _showSnackBar('Ecriture lancee.');
+        break;
+      case ContactWriteOutcome.unavailable:
+        _showSnackBar('Action indisponible sur cet appareil.');
+        break;
+      case ContactWriteOutcome.failed:
+        _showSnackBar('Impossible d\'ouvrir l\'application.');
+        break;
+    }
+  }
+
   Future<void> _handleWrite(Contact? contact) async {
     if (contact == null) {
       _showActionFeedback('Ecrire');
@@ -208,6 +253,7 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
     }
     switch (result) {
       case ContactWriteOutcome.success:
+        ref.invalidate(suggestionDecisionProvider(_context));
         _showSnackBar('Ecriture lancee.');
         break;
       case ContactWriteOutcome.unavailable:
