@@ -1,6 +1,6 @@
 # Story 4.2: Lancer "Ecrire" depuis une notification ou une carte
 
-Status: review
+Status: done
 
 ## Story
 
@@ -43,6 +43,7 @@ so that je transforme un rappel en action immediate.
 - Tentative + succes historises via ContactHistoryService et repository.
 - Handler notification ajoute pour reutiliser la meme logique.
 - Tests: service d'historique + suite complete.
+- Review fixes: branchement notification via payload, invalidation suggestion apres succes, et filtrage des tentatives pour la cadence.
 
 ### Tests
 - `flutter test test/features/contacts/domain/contact_history_service_test.dart`
@@ -53,14 +54,20 @@ so that je transforme un rappel en action immediate.
 - lib/features/contacts/data/contact_history_repository.dart
 - lib/features/contacts/domain/contact_action_types.dart
 - lib/features/contacts/domain/contact_history_service.dart
+- lib/features/contacts/domain/contact_suggestion_service.dart
 - lib/features/contacts/domain/contact_write_action_service.dart
 - lib/features/contacts/presentation/providers/contact_action_provider.dart
+- lib/features/reminders/domain/notification_action_payload.dart
 - lib/features/reminders/domain/notification_action_handler.dart
 - lib/features/reminders/presentation/providers/notification_action_provider.dart
 - test/features/contacts/domain/contact_history_service_test.dart
+- test/features/contacts/domain/contact_suggestion_service_test.dart
+- test/features/contacts/domain/contact_write_action_service_test.dart
 - test/features/contacts/presentation/contact_edit_page_test.dart
 - test/features/contacts/presentation/providers/contact_detail_provider_test.dart
+- test/features/reminders/domain/notification_action_handler_test.dart
 - test/features/reminders/domain/reminder_suggestion_service_test.dart
 
 ## Change Log
 - 2026-02-03: Ajout action Ecrire (UI + notification handler), historisation et tests.
+- 2026-02-03: Corrections review (payload notification, invalidation suggestion, filtrage tentatives, tests).
