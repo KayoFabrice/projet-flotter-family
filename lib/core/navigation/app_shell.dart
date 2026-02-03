@@ -11,8 +11,12 @@ import '../../features/contacts/presentation/providers/contact_action_provider.d
 import '../../features/agenda/presentation/providers/suggestion_provider.dart';
 import '../../features/agenda/presentation/widgets/agenda_section.dart';
 import '../../features/agenda/presentation/widgets/suggestion_card.dart';
+import '../notifications/local_notifications_service.dart';
+import '../../features/reminders/domain/suggestion_selector.dart';
 import '../../features/reminders/domain/notification_action_payload.dart';
+import '../../features/reminders/domain/reminder_deferral_service.dart';
 import '../../features/reminders/presentation/providers/notification_action_provider.dart';
+import '../../features/reminders/presentation/providers/reminder_action_provider.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 
 class AppShell extends StatefulWidget {
@@ -74,6 +78,9 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
   late SuggestionContext _context;
   Timer? _refreshTimer;
   bool _handledNotificationAction = false;
+  String? _lastNotifiedContactId;
+  String? _lastNotifiedMessage;
+  DateTime? _lastNotifiedAt;
 
   @override
   void initState() {
@@ -124,14 +131,25 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
         padding: const EdgeInsets.all(16),
         children: [
           decision.when(
-            data: (result) => result.hasSuggestion
-                ? SuggestionCard(
-                    decision: result,
-                    onWrite: () => _handleWrite(result.contact),
-                    onCall: () => _handleCall(result.contact),
-                    onLater: _handleLater,
-                  )
-                : const SizedBox.shrink(),
+            data: (result) {
+              if (result.hasSuggestion) {
+                _maybeNotify(result);
+                return SuggestionCard(
+                  decision: result,
+                  onWrite: () => _handleWrite(result.contact),
+                  onCall: () => _handleCall(result.contact),
+                  onLater: () => _handleDeferral(
+                    result.contact,
+                    ReminderDeferralType.later,
+                  ),
+                  onNotNow: () => _handleDeferral(
+                    result.contact,
+                    ReminderDeferralType.notNow,
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
             loading: () => const SizedBox.shrink(),
             error: (_, __) => const SizedBox.shrink(),
           ),
@@ -173,7 +191,36 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
     if (parsedArgs is NotificationCallActionPayload) {
       _handledNotificationAction = true;
       _handleCallFromNotification(parsedArgs);
+      return;
     }
+    if (parsedArgs is NotificationDeferActionPayload) {
+      _handledNotificationAction = true;
+      _handleDeferralFromNotification(parsedArgs);
+    }
+  }
+
+  void _maybeNotify(SuggestionDecision decision) {
+    final contact = decision.contact;
+    if (contact == null) {
+      return;
+    }
+    final now = DateTime.now();
+    if (_lastNotifiedContactId == contact.id &&
+        _lastNotifiedMessage == decision.message &&
+        _lastNotifiedAt != null &&
+        now.difference(_lastNotifiedAt!) < const Duration(minutes: 30)) {
+      return;
+    }
+    _lastNotifiedContactId = contact.id;
+    _lastNotifiedMessage = decision.message;
+    _lastNotifiedAt = now;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      LocalNotificationsService.instance.showReminderNotification(
+        contactId: contact.id,
+        contactName: contact.displayName,
+        message: decision.message,
+      );
+    });
   }
 
   Future<void> _handleWriteFromNotification(
@@ -223,6 +270,28 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
       case ContactCallOutcome.failed:
         _showSnackBar('Impossible d\'ouvrir l\'application.');
         break;
+    }
+  }
+
+  Future<void> _handleDeferralFromNotification(
+    NotificationDeferActionPayload payload,
+  ) async {
+    final handler = ref.read(notificationActionHandlerProvider);
+    try {
+      await handler.handleDeferralAction(
+        contactId: payload.contactId,
+        type: payload.type,
+      );
+      if (!mounted) {
+        return;
+      }
+      ref.invalidate(suggestionDecisionProvider(_context));
+      _showSnackBar(_deferralMessage(payload.type));
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      _showSnackBar('Impossible de reporter le rappel.');
     }
   }
 
@@ -304,6 +373,11 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
     }
     final phone = contact.phone?.trim();
     if (phone == null || phone.isEmpty) {
+      final history = ref.read(contactHistoryServiceProvider);
+      await history.recordCallAttempt(contactId: contact.id);
+      if (!mounted) {
+        return;
+      }
       _showSnackBar('Ajoutez un numero pour appeler.');
       return;
     }
@@ -328,7 +402,40 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
         break;
     }
   }
-  void _handleLater() => _showActionFeedback('Plus tard');
+  Future<void> _handleDeferral(
+    Contact? contact,
+    ReminderDeferralType type,
+  ) async {
+    if (contact == null) {
+      _showActionFeedback(type == ReminderDeferralType.later
+          ? 'Plus tard'
+          : 'Pas le bon moment');
+      return;
+    }
+    final service = ref.read(reminderDeferralServiceProvider);
+    try {
+      await service.defer(contactId: contact.id, type: type);
+      if (!mounted) {
+        return;
+      }
+      ref.invalidate(suggestionDecisionProvider(_context));
+      _showSnackBar(_deferralMessage(type));
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      _showSnackBar('Impossible de reporter le rappel.');
+    }
+  }
+
+  String _deferralMessage(ReminderDeferralType type) {
+    switch (type) {
+      case ReminderDeferralType.later:
+        return 'Rappel reporte.';
+      case ReminderDeferralType.notNow:
+        return 'Rappel ignore.';
+    }
+  }
 
   void _showActionFeedback(String label) {
     _showSnackBar('$label bientot disponible.');

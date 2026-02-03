@@ -67,4 +67,26 @@ class ContactHistoryService {
       occurredAtUtc: occurredAtUtc,
     );
   }
+
+  Future<void> recordReminderSnooze({
+    required String contactId,
+    DateTime? occurredAtUtc,
+  }) {
+    return recordAction(
+      contactId: contactId,
+      actionType: ContactActionTypes.reminderSnooze,
+      occurredAtUtc: occurredAtUtc,
+    );
+  }
+
+  Future<void> recordReminderDismiss({
+    required String contactId,
+    DateTime? occurredAtUtc,
+  }) {
+    return recordAction(
+      contactId: contactId,
+      actionType: ContactActionTypes.reminderDismiss,
+      occurredAtUtc: occurredAtUtc,
+    );
+  }
 }

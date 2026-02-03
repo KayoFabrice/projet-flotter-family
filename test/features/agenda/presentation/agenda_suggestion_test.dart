@@ -36,6 +36,7 @@ void main() {
     expect(find.text('Ecrire'), findsOneWidget);
     expect(find.text('Appeler'), findsOneWidget);
     expect(find.text('Plus tard'), findsOneWidget);
+    expect(find.text('Pas le bon moment'), findsOneWidget);
     final suggestionTop = tester.getTopLeft(find.byType(SuggestionCard)).dy;
     final todayTop = tester.getTopLeft(find.text("Aujourd'hui")).dy;
     expect(suggestionTop, lessThan(todayTop));

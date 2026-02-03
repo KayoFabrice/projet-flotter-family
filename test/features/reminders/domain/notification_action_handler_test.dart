@@ -5,7 +5,12 @@ import 'package:projet_flutter_famille/features/contacts/domain/contact_call_act
 import 'package:projet_flutter_famille/features/contacts/domain/contact_history_entry.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_history_service.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_write_action_service.dart';
+import 'package:projet_flutter_famille/features/reminders/data/reminders_repository.dart';
 import 'package:projet_flutter_famille/features/reminders/domain/notification_action_handler.dart';
+import 'package:projet_flutter_famille/features/reminders/domain/reminder_cooldown_service.dart';
+import 'package:projet_flutter_famille/features/reminders/domain/reminder_deferral_service.dart';
+import 'package:projet_flutter_famille/features/reminders/domain/rest_window.dart';
+import 'package:projet_flutter_famille/features/settings/domain/availability_window.dart';
 
 class _FakeHistoryRepository implements ContactHistoryRepository {
   final entries = <ContactHistoryEntry>[];
@@ -44,6 +49,33 @@ class _FakeLauncher implements ContactActionLauncher {
   Future<bool> launch(Uri uri) async => true;
 }
 
+class _FakeRemindersRepository implements RemindersRepository {
+  @override
+  Future<List<String>> fetchKeyLocationLabels() async => const [];
+
+  @override
+  Future<List<AvailabilityWindow>> fetchAvailabilityWindows() async => const [];
+
+  @override
+  Future<List<RestWindow>> fetchRestWindows() async => const [];
+
+  @override
+  Future<Duration> fetchCooldownDuration() async =>
+      const Duration(hours: 48);
+
+  @override
+  Future<void> saveCooldownDuration(Duration duration) async {}
+
+  @override
+  Future<void> setContactCooldownUntil({
+    required String contactId,
+    required String cooldownUntil,
+  }) async {}
+
+  @override
+  Future<String?> fetchContactCooldownUntil(String contactId) async => null;
+}
+
 void main() {
   test('NotificationActionHandler declenche l ecriture et historise', () async {
     final repo = _FakeHistoryRepository();
@@ -56,9 +88,14 @@ void main() {
       historyService: history,
       launcher: _FakeLauncher(),
     );
+    final deferralService = ReminderDeferralService(
+      cooldownService: ReminderCooldownService(_FakeRemindersRepository()),
+      historyService: history,
+    );
     final handler = NotificationActionHandler(
       writeService: writeService,
       callService: callService,
+      deferralService: deferralService,
     );
 
     final result = await handler.handleWriteAction(
@@ -83,9 +120,14 @@ void main() {
       historyService: history,
       launcher: _FakeLauncher(),
     );
+    final deferralService = ReminderDeferralService(
+      cooldownService: ReminderCooldownService(_FakeRemindersRepository()),
+      historyService: history,
+    );
     final handler = NotificationActionHandler(
       writeService: writeService,
       callService: callService,
+      deferralService: deferralService,
     );
 
     final result = await handler.handleCallAction(

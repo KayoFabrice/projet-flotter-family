@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'core/notifications/local_notifications_service.dart';
 import 'core/navigation/app_shell.dart';
 import 'core/metrics/startup_timer.dart';
 import 'features/contacts/presentation/pages/circles_page.dart';
@@ -16,8 +17,13 @@ import 'features/contacts/presentation/pages/contact_edit_page.dart';
 import 'features/contacts/presentation/pages/contacts_page.dart';
 import 'features/settings/presentation/pages/location_or_availability_page.dart';
 
-void main() {
+final _navigatorKey = GlobalKey<NavigatorState>();
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   AppStartupTimer.start();
+  LocalNotificationsService.instance.configureNavigator(_navigatorKey);
+  await LocalNotificationsService.instance.initialize();
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -37,6 +43,7 @@ class MyApp extends StatelessWidget {
 
     final baseTextTheme = ThemeData.light().textTheme;
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'projet_flutter_famille',
       theme: ThemeData(
         colorScheme: const ColorScheme.light(
