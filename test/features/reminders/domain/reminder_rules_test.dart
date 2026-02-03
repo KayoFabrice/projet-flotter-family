@@ -173,4 +173,44 @@ void main() {
     expect(endStatus.status, EligibilityStatus.restWindow);
     expect(afterStatus.status, EligibilityStatus.eligible);
   });
+
+  test('ReminderRules bloque pendant le cooldown', () {
+    final rules = ReminderRules();
+    final now = DateTime.utc(2026, 1, 1, 10, 0);
+    final cooldownUntil = now.add(const Duration(hours: 1)).toIso8601String();
+
+    final result = rules.evaluateEligibility(
+      currentLocationLabel: 'Maison',
+      keyLocations: const ['Maison'],
+      currentMinuteOfDay: 10 * 60,
+      windows: const [
+        AvailabilityWindow(startMinute: 9 * 60, endMinute: 12 * 60),
+      ],
+      nowUtc: now,
+      cooldownUntil: cooldownUntil,
+    );
+
+    expect(result.status, EligibilityStatus.cooldown);
+    expect(result.isEligible, isFalse);
+  });
+
+  test('ReminderRules redevient eligible apres cooldown', () {
+    final rules = ReminderRules();
+    final now = DateTime.utc(2026, 1, 1, 10, 0);
+    final cooldownUntil = now.subtract(const Duration(minutes: 1)).toIso8601String();
+
+    final result = rules.evaluateEligibility(
+      currentLocationLabel: 'Maison',
+      keyLocations: const ['Maison'],
+      currentMinuteOfDay: 10 * 60,
+      windows: const [
+        AvailabilityWindow(startMinute: 9 * 60, endMinute: 12 * 60),
+      ],
+      nowUtc: now,
+      cooldownUntil: cooldownUntil,
+    );
+
+    expect(result.status, EligibilityStatus.eligible);
+    expect(result.isEligible, isTrue);
+  });
 }
