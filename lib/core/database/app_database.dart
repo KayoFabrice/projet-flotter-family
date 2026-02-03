@@ -32,7 +32,7 @@ class AppDatabase {
     final dbPath = join(await getDatabasesPath(), _databaseName);
     final db = await openDatabase(
       dbPath,
-      version: 15,
+      version: 16,
       onCreate: (database, version) async {
         await database.execute(
           'CREATE TABLE $onboardingTable (id INTEGER PRIMARY KEY, step TEXT NOT NULL)',
@@ -41,7 +41,7 @@ class AppDatabase {
           'CREATE TABLE $selectedCirclesTable (circle TEXT PRIMARY KEY)',
         );
         await database.execute(
-          'CREATE TABLE $contactsTable (id TEXT PRIMARY KEY, display_name TEXT NOT NULL, circle TEXT NOT NULL, created_at TEXT NOT NULL, is_onboarding INTEGER NOT NULL DEFAULT 1, phone TEXT, email TEXT)',
+          'CREATE TABLE $contactsTable (id TEXT PRIMARY KEY, display_name TEXT NOT NULL, circle TEXT NOT NULL, created_at TEXT NOT NULL, is_onboarding INTEGER NOT NULL DEFAULT 1, phone TEXT, email TEXT, cooldown_until TEXT)',
         );
         await database.execute(
           'CREATE TABLE $contactCadencesTable (circle TEXT PRIMARY KEY, cadence_days INTEGER NOT NULL)',
@@ -82,7 +82,7 @@ class AppDatabase {
         }
         if (oldVersion < 3) {
           await database.execute(
-            'CREATE TABLE $contactsTable (id TEXT PRIMARY KEY, display_name TEXT NOT NULL, circle TEXT NOT NULL, created_at TEXT NOT NULL, is_onboarding INTEGER NOT NULL DEFAULT 1, phone TEXT, email TEXT)',
+          'CREATE TABLE $contactsTable (id TEXT PRIMARY KEY, display_name TEXT NOT NULL, circle TEXT NOT NULL, created_at TEXT NOT NULL, is_onboarding INTEGER NOT NULL DEFAULT 1, phone TEXT, email TEXT, cooldown_until TEXT)',
           );
         } else if (oldVersion < 7) {
           const oldTable = '${contactsTable}_old';
@@ -90,7 +90,7 @@ class AppDatabase {
             'ALTER TABLE $contactsTable RENAME TO $oldTable',
           );
           await database.execute(
-            'CREATE TABLE $contactsTable (id TEXT PRIMARY KEY, display_name TEXT NOT NULL, circle TEXT NOT NULL, created_at TEXT NOT NULL, is_onboarding INTEGER NOT NULL DEFAULT 1, phone TEXT, email TEXT)',
+            'CREATE TABLE $contactsTable (id TEXT PRIMARY KEY, display_name TEXT NOT NULL, circle TEXT NOT NULL, created_at TEXT NOT NULL, is_onboarding INTEGER NOT NULL DEFAULT 1, phone TEXT, email TEXT, cooldown_until TEXT)',
           );
           if (oldVersion < 4) {
             await database.execute(
@@ -156,6 +156,11 @@ class AppDatabase {
         if (oldVersion < 15) {
           await database.execute(
             'CREATE TABLE $restWindowsTable (id INTEGER PRIMARY KEY AUTOINCREMENT, start_minute INTEGER NOT NULL, end_minute INTEGER NOT NULL)',
+          );
+        }
+        if (oldVersion < 16) {
+          await database.execute(
+            'ALTER TABLE $contactsTable ADD COLUMN cooldown_until TEXT',
           );
         }
       },

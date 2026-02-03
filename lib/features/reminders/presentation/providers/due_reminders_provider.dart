@@ -12,12 +12,16 @@ import '../../domain/reminder_rules.dart';
 
 class EligibilityContext {
   const EligibilityContext({
+    required this.contactId,
     required this.currentLocationLabel,
     required this.currentMinuteOfDay,
+    this.nowUtc,
   });
 
+  final String contactId;
   final String? currentLocationLabel;
   final int currentMinuteOfDay;
+  final DateTime? nowUtc;
 }
 
 final remindersRepositoryProvider = Provider<RemindersRepository>((ref) {
@@ -26,6 +30,7 @@ final remindersRepositoryProvider = Provider<RemindersRepository>((ref) {
   final restWindowRepo = RestWindowRepositoryImpl(AppDatabase.instance);
   final settingsFlagsRepo = SettingsFlagsRepositoryImpl(AppDatabase.instance);
   return RemindersRepositoryImpl(
+    database: AppDatabase.instance,
     keyLocationRepository: keyRepo,
     availabilityRepository: availabilityRepo,
     restWindowRepository: restWindowRepo,
@@ -51,6 +56,8 @@ final dueRemindersProvider =
     final keyLocations = await repository.fetchKeyLocationLabels();
     final windows = await repository.fetchAvailabilityWindows();
     final restWindows = await repository.fetchRestWindows();
+    final cooldownUntil =
+        await repository.fetchContactCooldownUntil(context.contactId);
 
     final result = rules.evaluateEligibility(
       currentLocationLabel: context.currentLocationLabel,
@@ -58,6 +65,8 @@ final dueRemindersProvider =
       currentMinuteOfDay: context.currentMinuteOfDay,
       windows: windows,
       restWindows: restWindows,
+      nowUtc: context.nowUtc,
+      cooldownUntil: cooldownUntil,
     );
 
     logService.record(result);

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:projet_flutter_famille/core/database/app_database.dart';
 import 'package:projet_flutter_famille/features/reminders/data/reminders_repository.dart';
 import 'package:projet_flutter_famille/features/reminders/data/rest_window_repository.dart';
 import 'package:projet_flutter_famille/features/reminders/domain/rest_window.dart';
@@ -82,6 +83,7 @@ void main() {
     final restWindowRepo = FakeRestWindowRepository();
     final settingsFlagsRepo = FakeSettingsFlagsRepository();
     final repository = RemindersRepositoryImpl(
+      database: AppDatabase.instance,
       keyLocationRepository: keyRepo,
       availabilityRepository: availabilityRepo,
       restWindowRepository: restWindowRepo,
@@ -101,6 +103,7 @@ void main() {
     final restWindowRepo = FakeRestWindowRepository();
     final settingsFlagsRepo = FakeSettingsFlagsRepository();
     final repository = RemindersRepositoryImpl(
+      database: AppDatabase.instance,
       keyLocationRepository: keyRepo,
       availabilityRepository: availabilityRepo,
       restWindowRepository: restWindowRepo,
@@ -118,6 +121,7 @@ void main() {
     final restWindowRepo = FakeRestWindowRepository();
     final settingsFlagsRepo = FakeSettingsFlagsRepository();
     final repository = RemindersRepositoryImpl(
+      database: AppDatabase.instance,
       keyLocationRepository: keyRepo,
       availabilityRepository: availabilityRepo,
       restWindowRepository: restWindowRepo,
@@ -139,6 +143,7 @@ void main() {
     final restWindowRepo = FakeRestWindowRepository();
     final settingsFlagsRepo = FakeSettingsFlagsRepository();
     final repository = RemindersRepositoryImpl(
+      database: AppDatabase.instance,
       keyLocationRepository: keyRepo,
       availabilityRepository: availabilityRepo,
       restWindowRepository: restWindowRepo,
@@ -157,6 +162,7 @@ void main() {
     final restWindowRepo = FakeRestWindowRepository(windows: const []);
     final settingsFlagsRepo = FakeSettingsFlagsRepository();
     final repository = RemindersRepositoryImpl(
+      database: AppDatabase.instance,
       keyLocationRepository: keyRepo,
       availabilityRepository: availabilityRepo,
       restWindowRepository: restWindowRepo,
@@ -180,6 +186,7 @@ void main() {
     );
     final settingsFlagsRepo = FakeSettingsFlagsRepository();
     final repository = RemindersRepositoryImpl(
+      database: AppDatabase.instance,
       keyLocationRepository: keyRepo,
       availabilityRepository: availabilityRepo,
       restWindowRepository: restWindowRepo,
@@ -209,6 +216,7 @@ void main() {
       boolValues: const {'rest_mode_use_availability': true},
     );
     final repository = RemindersRepositoryImpl(
+      database: AppDatabase.instance,
       keyLocationRepository: keyRepo,
       availabilityRepository: availabilityRepo,
       restWindowRepository: restWindowRepo,

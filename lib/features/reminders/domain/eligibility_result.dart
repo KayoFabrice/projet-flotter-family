@@ -3,6 +3,7 @@ enum EligibilityStatus {
   locationMismatch,
   outsideAvailabilityWindow,
   restWindow,
+  cooldown,
 }
 
 class EligibilityResult {
@@ -35,6 +36,11 @@ class EligibilityResult {
   static const EligibilityResult restWindow = EligibilityResult(
     status: EligibilityStatus.restWindow,
     reason: 'rest_window',
+  );
+
+  static const EligibilityResult cooldown = EligibilityResult(
+    status: EligibilityStatus.cooldown,
+    reason: 'cooldown',
   );
 }
 

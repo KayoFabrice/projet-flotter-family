@@ -189,6 +189,7 @@ class ContactsRepositoryImpl implements ContactsRepository {
             createdAt: (row['created_at'] as String?) ?? '',
             phone: row['phone'] as String?,
             email: row['email'] as String?,
+            cooldownUntil: row['cooldown_until'] as String?,
           ),
         )
         .toList();
