@@ -7,16 +7,19 @@ class SuggestionDecision {
   const SuggestionDecision({
     required this.contact,
     required this.reason,
+    this.message,
   });
 
   final Contact? contact;
   final String reason;
+  final String? message;
 
   bool get hasSuggestion => contact != null;
 
   static const SuggestionDecision noSuggestion = SuggestionDecision(
     contact: null,
     reason: 'no_suggestion',
+    message: null,
   );
 }
 

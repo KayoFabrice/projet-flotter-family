@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/app_database.dart';
@@ -7,6 +9,7 @@ import '../../../contacts/data/contacts_repository.dart';
 import '../../../settings/data/availability_repository.dart';
 import '../../../settings/data/key_location_repository.dart';
 import '../../../settings/data/settings_flags_repository.dart';
+import '../../data/message_catalog_repository.dart';
 import '../../data/reminders_repository.dart';
 import '../../data/rest_window_repository.dart';
 import '../../domain/reminder_suggestion_service.dart';
@@ -17,11 +20,15 @@ class SuggestionContext {
     required this.currentMinuteOfDay,
     this.currentLocationLabel,
     this.nowUtc,
+    this.nowLocal,
+    this.messageRandom,
   });
 
   final int currentMinuteOfDay;
   final String? currentLocationLabel;
   final DateTime? nowUtc;
+  final DateTime? nowLocal;
+  final Random? messageRandom;
 }
 
 final reminderSuggestionServiceProvider = Provider<ReminderSuggestionService>(
@@ -38,6 +45,7 @@ final reminderSuggestionServiceProvider = Provider<ReminderSuggestionService>(
         settingsFlagsRepository:
             SettingsFlagsRepositoryImpl(AppDatabase.instance),
       ),
+      messageCatalogRepository: MessageCatalogRepositoryImpl(),
     );
   },
 );
@@ -50,6 +58,8 @@ final suggestionDecisionProvider =
       currentLocationLabel: context.currentLocationLabel,
       currentMinuteOfDay: context.currentMinuteOfDay,
       nowUtc: context.nowUtc,
+      nowLocal: context.nowLocal,
+      messageRandom: context.messageRandom,
     );
   },
 );

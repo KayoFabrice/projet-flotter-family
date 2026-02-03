@@ -1,11 +1,15 @@
+import 'dart:math';
+
 import '../../contacts/data/cadence_repository.dart';
 import '../../contacts/data/contacts_repository.dart';
 import '../../contacts/data/contact_history_repository.dart';
 import '../../contacts/domain/contact.dart';
 import '../../contacts/domain/contact_circle.dart';
 import '../../contacts/domain/contact_history_entry.dart';
+import '../data/message_catalog_repository.dart';
 import '../data/reminders_repository.dart';
 import 'eligibility_result.dart';
+import 'message_catalog.dart';
 import 'reminder_rules.dart';
 import 'suggestion_selector.dart';
 
@@ -15,12 +19,14 @@ class ReminderSuggestionService {
     required CadenceRepository cadenceRepository,
     required ContactHistoryRepository historyRepository,
     required RemindersRepository remindersRepository,
+    required MessageCatalogRepository messageCatalogRepository,
     ReminderRules? reminderRules,
     SuggestionSelector? selector,
   })  : _contactsRepository = contactsRepository,
         _cadenceRepository = cadenceRepository,
         _historyRepository = historyRepository,
         _remindersRepository = remindersRepository,
+        _messageCatalogRepository = messageCatalogRepository,
         _reminderRules = reminderRules ?? ReminderRules(),
         _selector = selector ?? SuggestionSelector();
 
@@ -28,6 +34,7 @@ class ReminderSuggestionService {
   final CadenceRepository _cadenceRepository;
   final ContactHistoryRepository _historyRepository;
   final RemindersRepository _remindersRepository;
+  final MessageCatalogRepository _messageCatalogRepository;
   final ReminderRules _reminderRules;
   final SuggestionSelector _selector;
 
@@ -36,8 +43,11 @@ class ReminderSuggestionService {
     required int currentMinuteOfDay,
     Map<ContactCircle, int> categoryPriorities = const {},
     DateTime? nowUtc,
+    DateTime? nowLocal,
+    Random? messageRandom,
   }) async {
     final now = (nowUtc ?? DateTime.now()).toUtc();
+    final localNow = nowLocal ?? DateTime.now();
     final contacts = await _contactsRepository.fetchContacts();
     if (contacts.isEmpty) {
       return SuggestionDecision.noSuggestion;
@@ -75,13 +85,32 @@ class ReminderSuggestionService {
         ? _defaultCategoryPriorities()
         : categoryPriorities;
 
-    return _selector.selectBestCandidate(
+    final decision = _selector.selectBestCandidate(
       eligibleContacts: contacts,
       cadences: cadences,
       histories: histories,
       categoryPriorities: priorities,
       eligibilityByContactId: eligibilityByContactId,
       nowUtc: now,
+    );
+    if (!decision.hasSuggestion) {
+      return decision;
+    }
+
+    final context = _resolveMessageContext(localNow, currentMinuteOfDay);
+    final message = _messageCatalogRepository.selectMessage(
+      circle: decision.contact!.circle,
+      context: context,
+      random: messageRandom,
+    );
+    if (message == null) {
+      return SuggestionDecision.noSuggestion;
+    }
+
+    return SuggestionDecision(
+      contact: decision.contact,
+      reason: decision.reason,
+      message: message,
     );
   }
 
@@ -90,5 +119,20 @@ class ReminderSuggestionService {
       for (final circle in ContactCircle.values)
         circle: ContactCircle.values.indexOf(circle) + 1,
     };
+  }
+
+  MessageContext _resolveMessageContext(DateTime now, int currentMinuteOfDay) {
+    final isWeekend =
+        now.weekday == DateTime.saturday || now.weekday == DateTime.sunday;
+    if (isWeekend) {
+      return MessageContext.weekend;
+    }
+    if (currentMinuteOfDay < 12 * 60) {
+      return MessageContext.morning;
+    }
+    if (currentMinuteOfDay >= 18 * 60) {
+      return MessageContext.evening;
+    }
+    return MessageContext.general;
   }
 }
