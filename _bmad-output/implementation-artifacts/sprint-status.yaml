@@ -68,7 +68,7 @@ development_status:
   epic-4: backlog
   4-1-afficher-une-suggestion-claire-dans-l-agenda: done
   4-2-lancer-ecrire-depuis-une-notification-ou-une-carte: done
-  4-3-lancer-appeler-depuis-une-notification-ou-une-carte: ready-for-dev
+  4-3-lancer-appeler-depuis-une-notification-ou-une-carte: done
   4-4-gerer-pas-le-bon-moment-et-plus-tard: ready-for-dev
   4-5-voir-le-detail-d-un-proche-avec-metriques-et-historique: ready-for-dev
   4-6-mettre-a-jour-l-historique-de-facon-fiable-apres-action: ready-for-dev

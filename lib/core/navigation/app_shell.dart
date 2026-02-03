@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/contacts/presentation/pages/contacts_page.dart';
 import '../../features/contacts/domain/contact.dart';
+import '../../features/contacts/domain/contact_call_action_service.dart';
 import '../../features/contacts/domain/contact_write_action_service.dart';
 import '../../features/contacts/presentation/providers/contact_action_provider.dart';
 import '../../features/agenda/presentation/providers/suggestion_provider.dart';
@@ -127,7 +128,7 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
                 ? SuggestionCard(
                     decision: result,
                     onWrite: () => _handleWrite(result.contact),
-                    onCall: _handleCall,
+                    onCall: () => _handleCall(result.contact),
                     onLater: _handleLater,
                   )
                 : const SizedBox.shrink(),
@@ -163,9 +164,15 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
       return;
     }
     final args = ModalRoute.of(context)?.settings.arguments;
-    if (args is NotificationWriteActionPayload) {
+    final parsedArgs = NotificationActionPayloadParser.tryParse(args);
+    if (parsedArgs is NotificationWriteActionPayload) {
       _handledNotificationAction = true;
-      _handleWriteFromNotification(args);
+      _handleWriteFromNotification(parsedArgs);
+      return;
+    }
+    if (parsedArgs is NotificationCallActionPayload) {
+      _handledNotificationAction = true;
+      _handleCallFromNotification(parsedArgs);
     }
   }
 
@@ -189,6 +196,31 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
         _showSnackBar('Action indisponible sur cet appareil.');
         break;
       case ContactWriteOutcome.failed:
+        _showSnackBar('Impossible d\'ouvrir l\'application.');
+        break;
+    }
+  }
+
+  Future<void> _handleCallFromNotification(
+    NotificationCallActionPayload payload,
+  ) async {
+    final handler = ref.read(notificationActionHandlerProvider);
+    final result = await handler.handleCallAction(
+      contactId: payload.contactId,
+      uri: payload.uri,
+    );
+    if (!mounted) {
+      return;
+    }
+    switch (result) {
+      case ContactCallOutcome.success:
+        ref.invalidate(suggestionDecisionProvider(_context));
+        _showSnackBar('Appel lance.');
+        break;
+      case ContactCallOutcome.unavailable:
+        _showSnackBar('Action indisponible sur cet appareil.');
+        break;
+      case ContactCallOutcome.failed:
         _showSnackBar('Impossible d\'ouvrir l\'application.');
         break;
     }
@@ -265,7 +297,37 @@ class _AgendaPageState extends ConsumerState<_AgendaPage> {
     }
   }
 
-  void _handleCall() => _showActionFeedback('Appeler');
+  Future<void> _handleCall(Contact? contact) async {
+    if (contact == null) {
+      _showActionFeedback('Appeler');
+      return;
+    }
+    final phone = contact.phone?.trim();
+    if (phone == null || phone.isEmpty) {
+      _showSnackBar('Ajoutez un numero pour appeler.');
+      return;
+    }
+    final service = ref.read(contactCallActionServiceProvider);
+    final result = await service.launchCall(
+      contactId: contact.id,
+      uri: Uri(scheme: 'tel', path: phone),
+    );
+    if (!mounted) {
+      return;
+    }
+    switch (result) {
+      case ContactCallOutcome.success:
+        ref.invalidate(suggestionDecisionProvider(_context));
+        _showSnackBar('Appel lance.');
+        break;
+      case ContactCallOutcome.unavailable:
+        _showSnackBar('Action indisponible sur cet appareil.');
+        break;
+      case ContactCallOutcome.failed:
+        _showSnackBar('Impossible d\'ouvrir l\'application.');
+        break;
+    }
+  }
   void _handleLater() => _showActionFeedback('Plus tard');
 
   void _showActionFeedback(String label) {

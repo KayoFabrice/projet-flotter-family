@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:projet_flutter_famille/features/contacts/data/contact_history_repository.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_action_types.dart';
+import 'package:projet_flutter_famille/features/contacts/domain/contact_call_action_service.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_history_entry.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_history_service.dart';
 import 'package:projet_flutter_famille/features/contacts/domain/contact_write_action_service.dart';
@@ -51,7 +52,14 @@ void main() {
       historyService: history,
       launcher: _FakeLauncher(),
     );
-    final handler = NotificationActionHandler(writeService: writeService);
+    final callService = ContactCallActionService(
+      historyService: history,
+      launcher: _FakeLauncher(),
+    );
+    final handler = NotificationActionHandler(
+      writeService: writeService,
+      callService: callService,
+    );
 
     final result = await handler.handleWriteAction(
       contactId: 'c1',
@@ -62,5 +70,32 @@ void main() {
     expect(repo.entries.length, 2);
     expect(repo.entries.first.actionType, ContactActionTypes.writeAttempt);
     expect(repo.entries.last.actionType, ContactActionTypes.writeSuccess);
+  });
+
+  test('NotificationActionHandler declenche l appel et historise', () async {
+    final repo = _FakeHistoryRepository();
+    final history = ContactHistoryService(repository: repo);
+    final writeService = ContactWriteActionService(
+      historyService: history,
+      launcher: _FakeLauncher(),
+    );
+    final callService = ContactCallActionService(
+      historyService: history,
+      launcher: _FakeLauncher(),
+    );
+    final handler = NotificationActionHandler(
+      writeService: writeService,
+      callService: callService,
+    );
+
+    final result = await handler.handleCallAction(
+      contactId: 'c2',
+      uri: Uri.parse('tel:+33612345678'),
+    );
+
+    expect(result, ContactCallOutcome.success);
+    expect(repo.entries.length, 2);
+    expect(repo.entries.first.actionType, ContactActionTypes.callAttempt);
+    expect(repo.entries.last.actionType, ContactActionTypes.callSuccess);
   });
 }
